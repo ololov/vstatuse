@@ -1,0 +1,374 @@
+# -*- coding: utf-8 -*-
+#
+#       Copyright 2010 Yegor Kowalew <kw@sdesign.com.ua>
+
+from django.shortcuts import HttpResponse, render_to_response#, HttpResponseRedirect
+from status.models import VStatus
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+import datetime
+import calendar
+import re
+import pytils
+# Всего статусов, включая не опубликованные
+all_status_count = VStatus.objects.all().count()
+# Список юзеров
+all_user = User.objects.all()
+# Количество опубликованных статусов
+all_user_count_p = VStatus.objects.filter(status_status='p').count()
+# Количество не опубликованных статусов
+all_user_count_d = VStatus.objects.filter(status_status='d').count()
+
+# Создаю список юзеров с количеством статусов
+list = []
+coll_list = {}
+all_user_count = all_user.count() # Всего юзеров
+for i in all_user:
+    coll_list['name'] = i.username
+    coll_list['id'] = i.id
+    autor_status = VStatus.objects.filter(status_author = i)
+    coll_list['status_count'] = autor_status.count()
+    votes_yes = 0
+    votes_no = 0
+    max_rating = 0
+    for st in autor_status:
+        votes_yes = votes_yes + st.status_vote_yes
+        votes_no = votes_no + st.status_vote_no
+        if max_rating < st.status_rating:
+            max_rating = st.status_rating
+    coll_list['date_joined'] = i.date_joined
+    coll_list['votes_no'] = votes_no
+    coll_list['votes_yes'] = votes_yes
+    coll_list['max_rating'] = max_rating
+    try:
+        coll_list['autor_rating'] = ((votes_yes-votes_no)*100.)/all_user_count_p
+    except:
+        coll_list['autor_rating'] = 0.0
+    list.append(coll_list)
+    coll_list = {}
+
+from operator import itemgetter
+user_list = sorted(list, key=itemgetter("status_count"), reverse=True)
+
+def unescape(text):
+    """Removes HTML or XML character references
+       and entities from a text string
+
+       From Fredrik Lundh
+       http://effbot.org/zone/re-sub.htm#unescape-html
+
+       Little bit modified
+    """
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # Character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                print "Error with encoding HTML entities"
+                pass
+        else:
+            # Named entity
+            text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+        return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
+
+def user_best_cookies(request):
+    try:
+        yes_votes_list = request.session.get('yes_votes_list')
+        yes_votes_list_count = len(yes_votes_list)
+        no_votes_list = request.session.get('no_votes_list')
+    except:
+        yes_votes_list = []
+        no_votes_list = []
+        yes_votes_list_count = 0
+    best_list={}
+    best_list['yes_votes_list'] = yes_votes_list
+    best_list['no_votes_list'] = no_votes_list
+    best_list['yes_votes_list_count'] = yes_votes_list_count
+    return best_list
+
+def add_base(request):
+    from status.old_status import aa
+    b = r'(?P<xx>,|\.)(?P<yy>[^\s\W])'
+    st = 0
+    for ee in aa.split("),("):
+        text = ee.split("','")[2]
+        text = re.sub('<[^>]+>', '', text.replace("\\", ""))
+        if len(text) < 140:
+            if '&#' not in text:
+                text = re.sub(b, "\g<xx> \g<yy>",  text)
+                #text = text.replace(". ..", "...")
+                st+=1
+                st_add = unescape(ee.split("','")[5])
+                try:
+                    add_user = User.objects.get(username=st_add)
+                except:
+                    test_mail = st_add + '@testuser.com'
+                    test_pass = st_add + 'pass'
+                    add_user = User.objects.create_user(st_add, test_mail, test_pass)
+                    add_user.save()
+
+                new_status = VStatus(
+                status_text = text,
+                status_status = 'p',
+                status_source = 'old base',
+                status_rating = 0,
+                status_vote_yes = 0,
+                status_vote_no = 0,
+                status_date = ee.split("','")[1],
+                status_author = add_user
+                )
+                new_status.save()
+                #return HttpResponse("№:" + str(st))
+                print "№:", st, ' ', add_user.username, ' ', text
+    return HttpResponse('<b>Добавлено:</b> ' + str(st))
+
+def index(request):
+    best_cookies = user_best_cookies(request)
+    status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    return render_to_response('template_status.html',{
+                                'status':status,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'по Рейтингу',
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            })
+
+def order(request, ordering):
+    best_cookies = user_best_cookies(request)
+
+    order_list = [['date','по Дате','-status_date'], ['rating','по Рейтингу','-status_rating'], ['user-top','по Понравившимся','-status_rating']]
+    for i in order_list:
+        if i[0] == ordering:
+            ordering = i
+            this_url = i[0]
+    #print ordering[1]
+
+    status_list = VStatus.objects.filter(status_status='p').order_by(ordering[2])
+    if this_url == 'user-top':
+        new_list = []
+        for i in best_cookies['yes_votes_list']:
+            for y in status_list:
+                if i == y.id:
+                    new_list.append(y)
+        status_list = new_list
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+
+    return render_to_response('template_status.html',{
+                                'status':status,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':ordering[1],
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'current':'sort',
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            })
+
+def order_best_day(request, num):
+    best_cookies = user_best_cookies(request)
+    today = datetime.date.today() # сегодня
+    this_day = today - datetime.timedelta(days=int(num)) # нужный день
+    prev_day = today - datetime.timedelta(days=int(num)+1) # нужный день - 1день
+    next_day = today - datetime.timedelta(days=int(num)-1) # нужный день + 1день
+
+    paginate={}
+    if next_day > today:
+        paginate['next'] = {'date': False, 'int':False}
+    else:
+        paginate['next'] = {'date': next_day, 'int':int(num)-1}
+
+    paginate['this'] = {'date': this_day, 'int':num}
+    paginate['prev'] = {'date': prev_day, 'int':int(num)+1}
+
+    status_list = VStatus.objects.filter(status_status='p', status_vote_yes_date=this_day).order_by('-status_rating')[:10]
+    print status_list
+    return render_to_response('template_status_best.html',{
+                                'status':status_list,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'Лучшие за день',
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'current':'best',
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count'],
+                                'paginate':paginate
+                            })
+
+def order_best_week(request, num):
+    best_cookies = user_best_cookies(request)
+
+    num = 0
+
+    today = datetime.date.today() # сегодня
+    this_day = today - datetime.timedelta(weeks=int(num)) # нужный день
+    prev_day = today - datetime.timedelta(days=int(num)+1) # нужный день - 1день
+    next_day = today - datetime.timedelta(days=int(num)-1) # нужный день + 1день
+
+    print datetime.datetime.now()
+
+    this_day_str = today - datetime.timedelta(weeks=int(num))
+    this_day_end = today - datetime.timedelta(weeks=int(num)-1)
+
+    prev_day_str = today - datetime.timedelta(weeks=int(num))
+
+    paginate={}
+    if next_day > today:
+        paginate['next'] = {'date': False, 'int':False}
+    else:
+        paginate['next'] = {'date': next_day, 'int':int(num)-1}
+
+    paginate['this'] = {'date': this_day, 'int':num}
+    paginate['prev'] = {'date': prev_day, 'int':int(num)+1}
+
+    bb = pytils.dt.ru_strftime(u"C %d %B", this_day_str, inflected=True) + ', ' + pytils.dt.ru_strftime(u"по %d %B", this_day_end, inflected=True)
+
+    status_list = VStatus.objects.filter(status_status='p', status_vote_yes_date__range=(this_day_str, this_day_end)).order_by('-status_rating')[:10]
+    print status_list
+    return render_to_response('template_status_best.html',{
+                                'status':status_list,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':bb,
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'current':'best',
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count'],
+                                'paginate':paginate
+                            })
+
+def by_autor(request, autor):
+    best_cookies = user_best_cookies(request)
+
+    status_list = VStatus.objects.filter(status_status='p', status_author__id=autor)
+    this_username = User.objects.get(id = autor).username
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    return render_to_response('template_status.html',{
+                                'status':status,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'Статусы пользователя ' + this_username.encode("UTF-8"),
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'current':'autor',
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            })
+
+def all_autor(request):
+    best_cookies = user_best_cookies(request)
+
+    paginator = Paginator(user_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+
+    return render_to_response('template_autors.html',{
+                                'status':status,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'Все пользователи',
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'user_list':list,
+                                'current':'autor',
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            })
+
+def add_status(request):
+    return render_to_response('template_add_status.html',{
+                                #'status':status,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'Добавление статуса',
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'user_list':list
+                            })
+
+def vote(request, action, id):
+    import re
+    #original = 'Пример жоского,неудобочитаемого текста, который никому нафек ненужен.Идите вы плин'
+    #b = r'(?P<xx>,|\.)(?P<yy>[^\s])'
+    #text = re.sub(b, "\g<xx> \g<yy>",  original)
+    #print text
+    cookies = request.session
+    if action == 'yes':
+        if request.session.get('yes_votes_list'):
+            #print request.session.get('yes_votes_list')
+            cookies['yes_votes_list'].append(int(id))
+            cookies.save()
+        else:
+            cookies['yes_votes_list'] = []
+            cookies['yes_votes_list'].append(int(id))
+            cookies.save()
+        this_status = VStatus.objects.get(id = id)
+        this_status.status_vote_yes += 1
+        this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/all_user_count_p, 2)
+        status_vote_yes_date = datetime.datetime.now()
+        this_status.save()
+    elif action == 'no':
+        if request.session.get('no_votes_list'):
+            cookies['no_votes_list'].append(int(id))
+            cookies.save()
+        else:
+            cookies['no_votes_list'] = []
+            cookies['no_votes_list'].append(int(id))
+            cookies.save()
+        this_status = VStatus.objects.get(id = id)
+        this_status.status_vote_no -= 1
+        if this_status.status_vote_no == -10:
+            this_status.status_status = 'd'
+
+        this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/all_user_count_p, 2)
+        status_vote_yes_date = datetime.datetime.now()
+        this_status.save()
+    return HttpResponse('')

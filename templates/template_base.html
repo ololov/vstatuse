@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+<head>
+    <meta charset="UTF-8" />
+    <title>Vstatuse &rarr; {% block title %}Vstatuse{% endblock title %}</title>
+    <link rel="stylesheet" type="text/css" media="all" href="/stat/css/style.css" />
+    <script type="text/javascript" src="/stat/js/jquery-1.3.2.js"></script>
+    <script type="text/javascript" src="/stat/js/jquery.custom.js"></script>
+    <script type="text/javascript" src="/stat/js/extentions.js"></script>
+    <script src="http://s1.loginza.ru/js/widget.js" type="text/javascript"></script>
+
+<style type="text/css">
+.ticket-status.critical {
+    background:#ff5454;
+    color:#FFFFFF;
+    }
+.ticket-status.hold {
+    background:#bcbcbc;
+    color:#FFFFFF;
+    }
+.ticket-status.new {
+    background:#93ce11;
+    color:#FFFFFF;
+    }
+.ticket-status.open {
+    background:#df6800;
+    color:#FFFFFF;
+    }
+.ticket-status.resolved {
+    background:#DAE2E8;
+    color:#45688E;
+    }
+</style>
+    <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+</head>
+<body class="home blog">
+
+    <div id="container">
+
+        <div id="top">
+
+<div id="menu" class="menu-navigation-container">
+    <ul id="access">
+        <li>Cтатусов: <b>{{ all_status_count }}</b></li>
+        <li>Пользователей: <b>{{ all_user_count }}</b></li>
+    </ul>
+</div>
+<div id="logged-in">
+<a href="#">Небольшая справка</a>
+{% if user.is_authenticated %}
+    <a href="/logout">Выйти</a>
+{% else %}
+    <a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&provider=vkontakte" class="loginza">Войти через Вконтакте.ru</a>
+{% endif %}
+</div>
+        </div><!-- End #top -->
+        <div id="branding" role="banner">
+            <h1 id="site-title"><a href="/">Vstatuse</a> <span>&rarr;</span> {% block header %}{{ title }}{% endblock header %}</h1>
+            <div class="tagline">Сделай себе приятно - установи прикольный сатус!!!</div>
+        </div><!-- End #header -->
+
+        <div id="content">
+            <div id="main" role="main">
+                <div id="ticket-manager" class="tabber">
+                    <div class="tabber-navigation">
+                        <ul>
+                           <li {% if current = 'sort' %}class="current-tab"{% endif %}>
+                                <a href="/">Сортировка</a>
+                                <ul class="children">
+                                    <li><a href="/order-by/date/" title="Отсортировать статусы по дате">по дате</a> </li>
+                                    <li><a href="/order-by/rating/" title="Отсортировать статусы по рейтингу">по рейтингу</a> </li>
+             {% if yes_votes_list %}<li><a href="/order-by/user-top/" title="Отсортировать статусы по понравившимся">по понравившимся <span>{{ yes_votes_list_count }}</span></a></li>{% endif %}
+                               </ul>
+                            </li>
+                            <li {% if current = 'best' %}class="current-tab"{% endif %}>
+                                <a href="#">Лучшие</a>
+                                <ul class="children">
+                                        <li><a href="/order-by/best/day/0" title="">За день</a> </li>
+                                        <li><a href="/order-by/best/week/0" title="">За неделю</a> </li>
+                                        <li><a href="/order-by/best/month/0" title="">За месяц</a> </li>
+                               </ul>
+                            </li>
+                            <li {% if current = 'autor' %}class="current-tab"{% endif %}>
+                                <a href="#">Авторы</a>
+                                <ul class="children">
+                                    {% for user in all_user %}
+                                        {% if forloop.counter0 < 3%}
+                                            <li><a href="/autor/{{ user.id  }}" title="Статусы пользователя {{ user.name }}">{{ user.name  }}<span>{{ user.status_count }}</span></a> </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                        <li><a href="/autor/all" title="Просмотреть всех авторов">Все <span>{{ all_user_count }}</span></a> </li>
+                               </ul>
+                            </li>
+                                <li class="alignright">
+                                    <a href="/add-status/">Добавить cтатус</a>
+                                </li>
+                        </ul>
+                    </div>
+                    <div id="recent-tickets" class="panel">
+<ol class="ticket-list">
+{% block content %}{% endblock content %}
+</ol>
+
+            <div class="tabber-navigation bottom">
+            {% block nav %}{% endblock nav %}
+            </div><!-- #nav-above -->
+                    </div>
+                </div><!-- End #ticket-manager -->
+            </div><!-- End #main -->
+            <div id="sidebar" class="widget-area" role="complementary">
+                <ul class="submenu">
+                <li id="search-3" class="widget-container widget_search"><form role="search" method="get" id="searchform" action="#" >
+    <div><label class="screen-reader-text" for="s">Search for:</label>
+    <input type="text" value="" name="s" id="s" />
+    <input type="submit" id="searchsubmit" value="Search" />
+    </div>
+    </form></li>
+    <li id="cat-tax-3" class="widget-container widget_cat-tax">
+        <h3 class="widget-title">Статистика</h3>
+            <ul>
+            <li>
+                <a href="/" title="">Опубликованных</a>
+                <a href="/" class="rss"><b>({{ all_user_count_p }})</b></a>
+            </li>
+{% if yes_votes_list %}<li>
+                <a href="/order-by/user-top/" title="Отсортировать статусы по понравившимся">Понравилось</a>
+                <a href="/order-by/user-top/" class="rss"><b>({{ yes_votes_list_count }})</b></a>
+            </li>{% endif %}
+            <li>
+                <a href="#" title="">Не опубликованных</a>
+                <a href="#" class="rss"><b>(150)</b></a>
+            </li>
+            </ul>
+
+        </li>
+        </li>
+<li id="recent-comments-2" class="widget-container widget_recent_comments">
+    <h3 class="widget-title">Лучшие авторы</h3>
+    <ul id="recentcomments">
+{% for user in all_user %}
+    {% if  forloop.counter0 < 5 %}
+    <li>
+    <a href="/autor/{{ user.id  }}" title="">{{ user.name  }}</a>
+    <a href="/autor/{{ user.id  }}" class="rss"><b>({{ user.status_count }})</b></a>
+    </li>
+<!--
+        <li><a href="/autor/{{ user.name  }}" title="">{{ user.name  }}<span>{{ user.status_count  }}</span></a> </li>
+-->
+    {% endif %}
+    <!-- <li><a href="/autor/{{ user }}" title="">{{ user }}</a> </li> -->
+{% endfor %}
+    </ul>
+</li>
+</ul>
+
+            </div><!-- End #sidebar -->
+
+        </div><!-- End #content -->
+
+        <div id="footer">
+
+            <ul>
+                <li>Сделано при помощи <a href="http://sdesign.com.ua">sdesign.com.ua</a> и <a href="http://kwblog.net">Yegor Kowalew</a>
+                <li class="alignright">Верисия: 1.0 Beta.</li>
+            </ul>
+
+        </div>
+
+    </div><!-- End #container -->
+
+    </body>
+</html>

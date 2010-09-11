@@ -1,0 +1,15 @@
+{% extends 'template_base.html' %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+<li class="ticket">
+<form method="post" action="/add-status/">
+<h2>Текст статуса:</h2>
+<textarea name="status_source" cols="50" rows="3"></textarea>
+<h2>Ресурс:</h2>
+<input name="status_text" type="text" /><br />
+<p><input type="submit"></p>
+ </form>
+</li>
+{% endblock content %}

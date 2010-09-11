@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en-US">
+<head>
+    <meta charset="UTF-8" />
+    <title>Vstatuse &rarr; {{ title }}</title>
+    <link rel="stylesheet" type="text/css" media="all" href="/stat/css/style.css" />
+    <script type="text/javascript" src="/stat/js/jquery-1.3.2.js"></script>
+    <script type="text/javascript" src="/stat/js/jquery.custom.js"></script>
+
+<style type="text/css">
+.ticket-status.critical {
+    background:#ff5454;
+    color:#FFFFFF;
+    }
+.ticket-status.hold {
+    background:#bcbcbc;
+    color:#FFFFFF;
+    }
+.ticket-status.new {
+    background:#93ce11;
+    color:#FFFFFF;
+    }
+.ticket-status.open {
+    background:#df6800;
+    color:#FFFFFF;
+    }
+.ticket-status.resolved {
+    background:#ffefcb;
+    color:#e2b75a;
+    }
+</style>
+    <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+</head>
+<body class="home blog">
+
+    <div id="container">
+
+        <div id="top">
+
+<div id="menu" class="menu-navigation-container">
+    <ul id="access">
+        <li>Cтатусов: <b>{{ all_status_count }}</b></li>
+        <li>Пользователей: <b>{{ all_user_count }}</b></li>
+    </ul>
+</div>
+<div id="logged-in"><a href="#">Войти</a></div>
+        </div><!-- End #top -->
+        <div id="branding" role="banner">
+            <h1 id="site-title"><a href="/">Vstatuse</a> <span>&rarr;</span> {% block title %}{{ title }}{% endblock title %}</h1>
+            <div class="tagline">Сделай себе приятно - установи прикольный сатус!!!</div>
+        </div><!-- End #header -->
+
+        <div id="content">
+            <div id="main" role="main">
+                <div id="ticket-manager" class="tabber">
+                    <div class="tabber-navigation">
+                        <ul>
+                           <li class="current-tab">
+                                <a href="/">Сортировка</a>
+                                <ul class="children">
+                                    <li><a href="/order-by/date/" title="">по дате</a> </li>
+                                    <li><a href="/order-by/rating/" title="">по рейтингу</a> </li>
+                               </ul>
+                            </li>
+                            <li >
+                                <a href="#">Лучшие статусы</a>
+                                <ul class="children">
+                                        <li><a href="/autor/{{ user }}" title="">За сегодня</a> </li>
+                                        <li><a href="/autor/{{ user }}" title="">За неделю</a> </li>
+                                        <li><a href="/autor/{{ user }}" title="">За месяц</a> </li>
+                               </ul>
+                            </li>
+                            <li >
+                                <a href="#">Лучшие авторы</a>
+                                <ul class="children">
+                                    {% for user in all_user %}
+                                        {% if  forloop.counter0 < 3%}<li><a href="/autor/{{ user.id  }}" title="">{{ user.name  }}<span>{{ user.status_count  }}</span></a> </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                        <li><a href="/autor/all" title="">Все <span>{{ all_user_count_p }}</span></a> </li>
+                               </ul>
+                            </li>
+                                <li class="alignright">
+                                    <a href="#">Добавить cтатус</a>
+                                </li>
+                        </ul>
+                    </div>
+                    <div id="recent-tickets" class="panel">
+<ol class="ticket-list">
+{% block content %}
+{{ flatpage.content }}
+
+{% endblock content %}
+</ol>
+
+            <div class="tabber-navigation bottom">
+            {% block nav %}{% endblock nav %}
+            </div><!-- #nav-above -->
+                    </div>
+                </div><!-- End #ticket-manager -->
+            </div><!-- End #main -->
+            <div id="sidebar" class="widget-area" role="complementary">
+                <ul class="submenu">
+                <li id="search-3" class="widget-container widget_search"><form role="search" method="get" id="searchform" action="#" >
+    <div><label class="screen-reader-text" for="s">Search for:</label>
+    <input type="text" value="" name="s" id="s" />
+    <input type="submit" id="searchsubmit" value="Search" />
+    </div>
+    </form></li>
+    <li id="cat-tax-3" class="widget-container widget_cat-tax">
+        <h3 class="widget-title">Статистика</h3>
+            <ul>
+            <li>
+                <a href="#" title="">Опубликованных</a>
+                <a href="#" class="rss"><b>({{ all_user_count_p }})</b></a>
+            </li>
+            <li>
+                <a href="#" title="">Не опубликованных</a>
+                <a href="#" class="rss"><b>(150)</b></a>
+            </li>
+            </ul>
+
+        </li>
+        </li>
+<li id="recent-comments-2" class="widget-container widget_recent_comments">
+    <h3 class="widget-title">Лучшие авторы</h3>
+    <ul id="recentcomments">
+{% for user in all_user %}
+    {% if  forloop.counter0 < 5 %}
+    <li>
+    <a href="/autor/{{ user.id  }}" title="">{{ user.name  }}</a>
+    <a href="/autor/{{ user.id  }}" class="rss"><b>({{ user.status_count }})</b></a>
+    </li>
+<!--
+        <li><a href="/autor/{{ user.name  }}" title="">{{ user.name  }}<span>{{ user.status_count  }}</span></a> </li>
+-->
+    {% endif %}
+    <!-- <li><a href="/autor/{{ user }}" title="">{{ user }}</a> </li> -->
+{% endfor %}
+    </ul>
+</li>
+</ul>
+
+            </div><!-- End #sidebar -->
+
+        </div><!-- End #content -->
+
+        <div id="footer">
+
+            <ul>
+                <li>Сделано при помощи <a href="http://sdesign.com.ua">sdesign.com.ua</a> и <a href="http://kwblog.net">Yegor Kowalew</a>
+                <li class="alignright">Верисия: 1.0 Beta.</li>
+            </ul>
+
+        </div>
+
+    </div><!-- End #container -->
+
+    </body>
+</html>
