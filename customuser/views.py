@@ -106,7 +106,7 @@ def contact_answer(request):
         form = AuthConfirmation(request.POST)
         if form.is_valid():
             us = CustomUser.objects.get(username = form.cleaned_data['username'])
-            us.nickname = form.cleaned_data['nickname']
+            #us.nickname = form.cleaned_data['nickname']
             us.email = form.cleaned_data['email']
             us.is_active = True
             us.is_authenticated = True

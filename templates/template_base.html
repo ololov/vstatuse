@@ -49,7 +49,7 @@
 <div id="logged-in">
 <a href="#">Небольшая справка</a>
 {% if user.is_authenticated %}
-    <a href="/logout">Выйти</a>
+    <a href="/logout" title="Просмотр профиля">{{user.username}}</a>
 {% else %}
     <a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&provider=vkontakte" class="loginza">Войти через Вконтакте.ru</a>
 {% endif %}
@@ -77,9 +77,9 @@
                             <li {% if current = 'best' %}class="current-tab"{% endif %}>
                                 <a href="#">Лучшие</a>
                                 <ul class="children">
-                                        <li><a href="/order-by/best/day/0" title="">За день</a> </li>
-                                        <li><a href="/order-by/best/week/0" title="">За неделю</a> </li>
-                                        <li><a href="/order-by/best/month/0" title="">За месяц</a> </li>
+                                        <li><a href="/order-by/best/day/0" title="Лучшие за день">За день</a> </li>
+                                        <li><a href="/order-by/best/week/0" title="Лучшие за неделю">За неделю</a> </li>
+                                        <li><a href="/order-by/best/month/0" title="Лучшие за месяц">За месяц</a> </li>
                                </ul>
                             </li>
                             <li {% if current = 'autor' %}class="current-tab"{% endif %}>

@@ -194,7 +194,8 @@ def index(request):
     #print timestamp
     #for i in VStatus.objects.values('status_author__username', 'status_vote_yes', 'status_vote_no').annotate(Count('status_author')):
         #print i
-
+    #for i in user_list:
+        #print i
     best_cookies = user_best_cookies(request)
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
@@ -247,11 +248,7 @@ def by_this_date(request, this_date):
 
 def random_ten(request):
     best_cookies = user_best_cookies(request)
-    all_status = VStatus.objects.all()
-    all_status_count = all_status.count()
-    status = []
-    for i in xrange(10):
-        status.append(all_status[randint(0, all_status_count)])
+    status = VStatus.objects.order_by('?')[:10]
     return render_to_response('template_status_ten.html',{
                                 'status':status,
                                 'current':'sort',
@@ -359,7 +356,7 @@ def order(request, ordering):
 def by_autor(request, autor):
     best_cookies = user_best_cookies(request)
 
-    status_list = VStatus.objects.filter(status_status='p', status_author__id=autor)
+    status_list = VStatus.objects.filter(status_status='p', status_author__id=autor).order_by('-status_rating')
     this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
     try:
@@ -434,7 +431,7 @@ def vote(request, action, id):
         this_status = VStatus.objects.get(id = id)
         this_status.status_vote_yes += 1
         this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/all_user_count_p, 2)
-        status_vote_yes_date = datetime.datetime.now()
+        this_status.status_vote_yes_date = datetime.datetime.now()
         this_status.save()
     elif action == 'no':
         if request.session.get('no_votes_list'):
@@ -448,9 +445,7 @@ def vote(request, action, id):
         this_status.status_vote_no -= 1
         if this_status.status_vote_no == -10:
             this_status.status_status = 'd'
-
         this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/all_user_count_p, 2)
-        status_vote_yes_date = datetime.datetime.now()
         this_status.save()
     return HttpResponse('')
 
@@ -472,7 +467,9 @@ def order_best(request, ordering, num):
     num = int(num)
     if ordering == 'day':
         date_start = start_day - relativedelta(days=num)
-        status_list = VStatus.objects.filter(status_status='p', status_vote_yes_date=date_start).order_by('-status_rating')[:10]
+        print date_start
+        status_list = VStatus.objects.filter(status_status='p', status_vote_yes_date__month=date_start.month, status_vote_yes_date__year=date_start.year, status_vote_yes_date__day=date_start.day).order_by('-status_rating')[:10]
+        print status_list
         start = pytils.dt.ru_strftime(u"за %d %B %Y", date_start, inflected=True)
         date_start = start_day - relativedelta(days=num+1)
         prev = pytils.dt.ru_strftime(u"за %d %B", date_start, inflected=True)
