@@ -6,7 +6,7 @@
 
 from django.shortcuts import HttpResponse, render_to_response#, HttpResponseRedirect
 from status.models import VStatus
-from django.contrib.auth.models import User
+#from django.contrib.auth.models import User
 from customuser.models import CustomUser
 from django.core.paginator import Paginator
 from django.template.context import RequestContext
@@ -30,7 +30,7 @@ list = []
 coll_list = {}
 all_user_count = all_user.count() # Всего юзеров
 for i in all_user:
-    coll_list['name'] = i.nickname
+    coll_list['name'] = i.username
     coll_list['id'] = i.id
     autor_status = VStatus.objects.filter(status_author = i)
     coll_list['status_count'] = autor_status.count()
@@ -118,33 +118,33 @@ def add_base(request):
                 if st_add != 'admin':
                     tru_user = False
                     try:
-                        add_user = CustomUser.objects.get(nickname=st_add) ###
+                        add_user = CustomUser.objects.get(username=st_add) ###
                     except:
                         test_mail = st_add + '@testuser.com'
                         test_pass = st_add + 'pass'
-                        add_user = CustomUser(nickname=st_add, username=st_add+'_test', provider='http://vkontakte.ru/', photo='', identity='')
+                        add_user = CustomUser(username=st_add, provider='http://vkontakte.ru/', photo='', identity='')
                         add_user.save()
                 else:
                     tru_user = True
                     admin_user = randint(1,3)
                     if admin_user == 1:
                         try:
-                            add_user = CustomUser.objects.get(nickname='Yegor Kowalew')
+                            add_user = CustomUser.objects.get(username='Yegor Kowalew')
                         except:
-                            add_user = CustomUser(nickname='Yegor Kowalew', username='http://vkontakte.ru/id6135314', provider='http://vkontakte.ru/', photo='http://cs336.vkontakte.ru/u13175215/c_d5dabbe7.jpg', identity='http://vkontakte.ru/id13175215')
+                            add_user = CustomUser(username='Yegor Kowalew', provider='http://vkontakte.ru/', photo='http://cs336.vkontakte.ru/u13175215/c_d5dabbe7.jpg', identity='http://vkontakte.ru/id13175215')
                             add_user.save()
                     elif admin_user == 2:
                         try:
-                            add_user = CustomUser.objects.get(nickname='Артём Ватутин')
+                            add_user = CustomUser.objects.get(username='Артём Ватутин')
                         except:
-                            add_user = CustomUser(nickname='Артём Ватутин', username='http://vkontakte.ru/id13175215', provider='http://vkontakte.ru/', photo='http://cs9942.vkontakte.ru/u6135314/c_cd457566.jpg', identity='http://vkontakte.ru/id13175215')
+                            add_user = CustomUser(username='Артём Ватутин', provider='http://vkontakte.ru/', photo='http://cs9942.vkontakte.ru/u6135314/c_cd457566.jpg', identity='http://vkontakte.ru/id13175215')
                             add_user.save()
 
                     elif admin_user == 3:
                         try:
-                            add_user = CustomUser.objects.get(nickname='LaDioS')
+                            add_user = CustomUser.objects.get(username='LaDioS')
                         except:
-                            add_user = CustomUser(nickname='LaDioS', username='http://vkontakte.ru/id00000', provider='http://vkontakte.ru/', photo='http://cs4186.vkontakte.ru/u13463936/a_6a70f089.jpg', identity='http://vkontakte.ru/id1300000')
+                            add_user = CustomUser(username='LaDioS', provider='http://vkontakte.ru/', photo='http://cs4186.vkontakte.ru/u13463936/a_6a70f089.jpg', identity='http://vkontakte.ru/id1300000')
                             add_user.save()
 
                 if tru_user:
@@ -172,7 +172,10 @@ def add_base(request):
                     )
                 new_status.save()
                 #return HttpResponse("№:" + str(st))
-                print "№:", st, ' ', add_user.nickname, ' ', text
+                print "№:", st, ' ', add_user.username, ' ', text
+
+    for new_st in VStatus.objects.all():
+        new_st.status_rating = round(((new_st.status_vote_yes+new_st.status_vote_no)*100.)/all_user_count_p, 2)
     return HttpResponse('<b>Добавлено:</b> ' + str(st))
 
 def index(request):
@@ -187,6 +190,14 @@ def index(request):
     #print timestamp
     #for i in VStatus.objects.values('status_author__username', 'status_vote_yes', 'status_vote_no').annotate(Count('status_author')):
         #print i
+    #add_user = CustomUser.objects.get(nickname='LaDioS')
+    #print add_user
+    #all_st = VStatus.objects.all()
+    #for new_st in all_st:
+        #new_st.status_rating = round(((new_st.status_vote_yes+new_st.status_vote_no)*100.)/all_user_count_p, 2)
+        #print new_st.id, new_st.status_rating
+        #new_st.save()
+
     best_cookies = user_best_cookies(request)
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
@@ -408,13 +419,9 @@ def order_best(request, ordering, num):
                             }, context_instance=RequestContext(request))
 '''
 последняя компиляция занимает: 434 строк
-надо:
-- обьединить выборки по лучшим (есть)
-- перевести все на датеутилс (есть)
-- завести юзеров
 - улучшить стартовую функцию
 - сократить рендеры
-- по страницам запустить все ссылки
+-
 
-- убрать @csrf_exempt с contact_answer
+-
 '''
