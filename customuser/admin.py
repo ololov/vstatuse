@@ -11,7 +11,7 @@ from customuser.models import CustomUser
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'provider', 'photo',)
+    list_display = ('username', 'photo',)
 
 admin.site.unregister(User)
 admin.site.register(CustomUser, CustomUserAdmin)

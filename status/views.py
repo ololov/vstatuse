@@ -174,8 +174,11 @@ def add_base(request):
                 #return HttpResponse("№:" + str(st))
                 print "№:", st, ' ', add_user.username, ' ', text
 
-    for new_st in VStatus.objects.all():
+    all_st = VStatus.objects.all()
+    for new_st in all_st:
         new_st.status_rating = round(((new_st.status_vote_yes+new_st.status_vote_no)*100.)/all_user_count_p, 2)
+        print new_st.id, new_st.status_rating
+        new_st.save()
     return HttpResponse('<b>Добавлено:</b> ' + str(st))
 
 def index(request):
@@ -190,13 +193,6 @@ def index(request):
     #print timestamp
     #for i in VStatus.objects.values('status_author__username', 'status_vote_yes', 'status_vote_no').annotate(Count('status_author')):
         #print i
-    #add_user = CustomUser.objects.get(nickname='LaDioS')
-    #print add_user
-    #all_st = VStatus.objects.all()
-    #for new_st in all_st:
-        #new_st.status_rating = round(((new_st.status_vote_yes+new_st.status_vote_no)*100.)/all_user_count_p, 2)
-        #print new_st.id, new_st.status_rating
-        #new_st.save()
 
     best_cookies = user_best_cookies(request)
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
@@ -221,9 +217,89 @@ def index(request):
                                 'yes_votes_list_count':best_cookies['yes_votes_list_count']
                             }, context_instance=RequestContext(request))
 
+def by_this_date(request, this_date):
+    import time
+    #sd =
+    #print sd.strftime('%d %m %Y')
+    #print
+    best_cookies = user_best_cookies(request)
+    e = this_date.split("-")
+    status_list = VStatus.objects.filter(status_status='p', status_date__day=e[2], status_date__month=e[1], status_date__year=e[0]).order_by('-status_rating')
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    return render_to_response('template_status.html',{
+                                'status':status,
+                                'current':'sort',
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':pytils.dt.ru_strftime(u"за %d %B %Y", datetime.datetime.fromtimestamp(time.mktime(time.strptime(this_date, "%Y-%m-%d"))), inflected=True),
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            }, context_instance=RequestContext(request))
+
+def by_this_source(request, source):
+    '''Оставляю до лучших времен'''
+    best_cookies = user_best_cookies(request)
+    status_list = VStatus.objects.filter(status_status='p', status_source=source).order_by('-status_rating')
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    return render_to_response('template_status.html',{
+                                'status':status,
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'по Дате',
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            }, context_instance=RequestContext(request))
+
+def by_this_rating(request, rating):
+    #print rating.replace("-", ".")
+    best_cookies = user_best_cookies(request)
+    status_list = VStatus.objects.filter(status_status='p', status_rating=rating.replace("-", "."))
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    return render_to_response('template_status.html',{
+                                'status':status,
+                                'current':'sort',
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            }, context_instance=RequestContext(request))
+
 def order(request, ordering):
     best_cookies = user_best_cookies(request)
-
     order_list = [['date','по Дате','-status_date'], ['rating','по Рейтингу','-status_rating'], ['user-top','по Понравившимся','-status_rating']]
     for i in order_list:
         if i[0] == ordering:
@@ -266,7 +342,7 @@ def by_autor(request, autor):
     best_cookies = user_best_cookies(request)
 
     status_list = VStatus.objects.filter(status_status='p', status_author__id=autor)
-    this_username = CustomUser.objects.get(id = autor).nickname
+    this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
     try:
         page = int(request.GET.get('page', '1'))
@@ -417,11 +493,4 @@ def order_best(request, ordering, num):
                                 'yes_votes_list_count':best_cookies['yes_votes_list_count'], # количество лучших статусов
                                 'paginate':paginate # пейджинатор по датам
                             }, context_instance=RequestContext(request))
-'''
-последняя компиляция занимает: 434 строк
-- улучшить стартовую функцию
-- сократить рендеры
--
 
--
-'''
