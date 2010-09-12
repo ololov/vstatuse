@@ -14,6 +14,8 @@ import datetime
 from dateutil.relativedelta import *
 import re
 import pytils
+from random import *
+
 # Всего статусов, включая не опубликованные
 all_status_count = VStatus.objects.all().count()
 # Список юзеров
@@ -102,7 +104,6 @@ def add_base(request):
     from status.old_status import aa
     from datetime import *
     import time
-    from random import *
     #print date.fromtimestamp(randint(1230811167.0, 1277985567.0)) # Рандомная дата
 
     b = r'(?P<xx>,|\.)(?P<yy>[^\s\W])'
@@ -152,7 +153,7 @@ def add_base(request):
                     status_text = text,
                     status_status = 'p',
                     status_source = 'old base',
-                    status_vote_yes = randint(1, 10),
+                    status_vote_yes = randint(0, 10),
                     status_vote_yes_date = date.fromtimestamp(randint(1230811167.0, 1277985567.0)),
                     status_rating = 0,
                     status_vote_no = randint(1, 3),
@@ -219,9 +220,6 @@ def index(request):
 
 def by_this_date(request, this_date):
     import time
-    #sd =
-    #print sd.strftime('%d %m %Y')
-    #print
     best_cookies = user_best_cookies(request)
     e = this_date.split("-")
     status_list = VStatus.objects.filter(status_status='p', status_date__day=e[2], status_date__month=e[1], status_date__year=e[0]).order_by('-status_rating')
@@ -240,6 +238,26 @@ def by_this_date(request, this_date):
                                 'all_status_count':all_status_count,
                                 'all_user_count':all_user_count,
                                 'title':pytils.dt.ru_strftime(u"за %d %B %Y", datetime.datetime.fromtimestamp(time.mktime(time.strptime(this_date, "%Y-%m-%d"))), inflected=True),
+                                'all_user':user_list,
+                                'all_user_count_p':all_user_count_p,
+                                'yes_votes_list':best_cookies['yes_votes_list'],
+                                'no_votes_list':best_cookies['no_votes_list'],
+                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
+                            }, context_instance=RequestContext(request))
+
+def random_ten(request):
+    best_cookies = user_best_cookies(request)
+    all_status = VStatus.objects.all()
+    all_status_count = all_status.count()
+    status = []
+    for i in xrange(10):
+        status.append(all_status[randint(0, all_status_count)])
+    return render_to_response('template_status_ten.html',{
+                                'status':status,
+                                'current':'sort',
+                                'all_status_count':all_status_count,
+                                'all_user_count':all_user_count,
+                                'title':'Случайная десятка',
                                 'all_user':user_list,
                                 'all_user_count_p':all_user_count_p,
                                 'yes_votes_list':best_cookies['yes_votes_list'],
