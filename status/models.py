@@ -57,7 +57,7 @@ class VStatus(models.Model):
     status_vote_no = models.IntegerField(verbose_name='Голосов против', blank=True, null=True, default=0)
     status_date = models.DateField(auto_now=True, verbose_name=u'Дата публикации')
     status_author = models.ForeignKey(User, verbose_name=u'Автор')
-    status_category = models.ManyToManyField(Category, verbose_name=u'Категории', blank=True)
+    status_category = models.ManyToManyField(Category, verbose_name=u'Категории', blank=True, null=True)
 
     def __unicode__(self):
         return self.status_text

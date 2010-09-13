@@ -24,7 +24,7 @@ from django.contrib import admin
 class VStatusAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Основное',               {'fields': [('status_text', 'status_status', 'status_author')]}),
-        ('Дополнительно',          {'classes': ('collapse',), 'fields': [('status_source', 'status_vote_yes_date'), ('status_vote_yes','status_vote_no','status_rating')]}),
+        ('Дополнительно',          {'classes': ('collapse',), 'fields': [('status_source', 'status_vote_yes_date'), ('status_vote_yes','status_vote_no','status_rating'), 'status_category']}),
     ]
     list_display = ('status_text', 'status_status', 'status_rating')
     search_fields = ['status_text']

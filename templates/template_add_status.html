@@ -12,8 +12,19 @@
 <p><input type="submit"></p>
  </form>
 </li> -->
+{% if form.errors %}
+<div class="form-error">
+    <ul>
+    {% for field in form %}
+        {% if field.errors %}
+            <li>{{ field.label }}: {{ field.errors|striptags }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <form method="post" action="/add-status/">{% csrf_token %}
-    {{ request_form }}
+    {{ form }}
     <p><input type="submit"></p>
 </form>
 {% endblock content %}

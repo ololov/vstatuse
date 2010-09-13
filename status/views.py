@@ -328,6 +328,7 @@ def all_autor(request):
 
 
 def add_status(request):
+    from django.contrib.auth.models import User
     from django.core.context_processors import csrf
     from status.forms import *
     c = {}
@@ -335,16 +336,30 @@ def add_status(request):
     if request.method == 'POST': # If the form has been submitted...
         form = AddStatusForm(request.POST)
         if form.is_valid():
-            print  form.cleaned_data['status_text']
-            for i in form.cleaned_data['status_category']:
-                print i.id
+            if request.user.is_superuser:
+                nn_user = User.objects.get(id = request.user.id)
+            else:
+                nn_user = User.objects.filter(is_superuser=True).order_by('?')[0]
+            new_status = form.save(commit=False)
+            new_status.status_author = nn_user
+            new_status.status_date = datetime.datetime.today()
+            new_status.save()
+            form.save_m2m()
+        else:
+            dict = {'title':'Добавление статуса',
+                'form': form,
+                }
+            dict2 = def_values(request).copy()
+            dict2.update(dict)
+            return render_to_response('template_add_status.html', dict2)
+
         return HttpResponseRedirect('/add-status') # Все отлично, редирект на предыдущую
 
     else:
-        request_form = AddStatusForm().as_p()
+        form = AddStatusForm().as_p()
 
     dict = {'title':'Добавление статуса',
-            'request_form': request_form,
+            'form': form,
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
