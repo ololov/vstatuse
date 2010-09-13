@@ -3,7 +3,7 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-<li class="ticket">
+<!-- <li class="ticket">
 <form method="post" action="/add-status/">
 <h2>Текст статуса:</h2>
 <textarea name="status_source" cols="50" rows="3"></textarea>
@@ -11,5 +11,9 @@
 <input name="status_text" type="text" /><br />
 <p><input type="submit"></p>
  </form>
-</li>
+</li> -->
+<form method="post" action="/add-status/">{% csrf_token %}
+    {{ request_form }}
+    <p><input type="submit"></p>
+</form>
 {% endblock content %}

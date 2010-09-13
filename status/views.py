@@ -5,7 +5,7 @@
 # Для работы этой вьюшки требуются модули pytils, dateutil
 
 from django.db.models import Avg, Max, Min, Count
-from django.shortcuts import HttpResponse, render_to_response#, HttpResponseRedirect
+from django.shortcuts import HttpResponse, render_to_response, HttpResponseRedirect
 from status.models import VStatus, RandomText
 #from django.contrib.auth.models import User
 from customuser.models import CustomUser
@@ -52,6 +52,7 @@ from operator import itemgetter
 user_list = sorted(list, key=itemgetter("status_count"), reverse=True)
 
 def user_best_cookies(request):
+    '''Выбираю куки пользователя'''
     try:
         yes_votes_list = request.session.get('yes_votes_list')
         yes_votes_list_count = len(yes_votes_list)
@@ -82,13 +83,7 @@ def def_values(request):
 
 def unescape(text):
     """Removes HTML or XML character references
-       and entities from a text string
-
-       From Fredrik Lundh
-       http://effbot.org/zone/re-sub.htm#unescape-html
-
-       Little bit modified
-    """
+       and entities from a text string"""
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -331,8 +326,26 @@ def all_autor(request):
     dict2.update(dict)
     return render_to_response('template_autors.html', dict2, context_instance=RequestContext(request))
 
+
 def add_status(request):
-    dict = {'title':'Добавление статуса',}
+    from django.core.context_processors import csrf
+    from status.forms import *
+    c = {}
+    c.update(csrf(request))
+    if request.method == 'POST': # If the form has been submitted...
+        form = AddStatusForm(request.POST)
+        if form.is_valid():
+            print  form.cleaned_data['status_text']
+            for i in form.cleaned_data['status_category']:
+                print i.id
+        return HttpResponseRedirect('/add-status') # Все отлично, редирект на предыдущую
+
+    else:
+        request_form = AddStatusForm().as_p()
+
+    dict = {'title':'Добавление статуса',
+            'request_form': request_form,
+        }
     dict2 = def_values(request).copy()
     dict2.update(dict)
     return render_to_response('template_add_status.html', dict2, context_instance=RequestContext(request))
