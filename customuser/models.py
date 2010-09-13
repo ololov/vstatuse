@@ -8,6 +8,7 @@ from django.db import models
 
 from django.contrib.auth.models import User, UserManager
 class CustomUser(User):
+    '''Расширение модели юзера'''
     identity = models.CharField(max_length=50, verbose_name='URL идентификатор пользователя', blank=True, null=True)
     provider = models.CharField(max_length=50, verbose_name='URL провайдера', blank=True, null=True)
     uid = models.CharField(max_length=50, verbose_name='uid', blank=True, null=True)

@@ -30,4 +30,19 @@ class VStatusAdmin(admin.ModelAdmin):
     search_fields = ['status_text']
     list_filter = ('status_status', 'status_rating', 'status_author')
 
+class RandomTextAdmin(admin.ModelAdmin):
+    fieldsets = [
+    ('Основное',               {'fields': [('random_text_body', 'random_text_status')]}),
+    ]
+    list_display = ('random_text_body', 'random_text_status')
+
+class CategoryAdmin(admin.ModelAdmin):
+    fieldsets = [
+    ('Основное',               {'fields': [('category_name', 'category_slug')]}),
+    ('Дополнительно',          {'classes': ('collapse',), 'fields': ['category_status_count']}),
+    ]
+    list_display = ('category_name', 'category_slug', 'category_status_count')
+
+admin.site.register(RandomText, RandomTextAdmin)
 admin.site.register(VStatus, VStatusAdmin)
+admin.site.register(Category, CategoryAdmin)

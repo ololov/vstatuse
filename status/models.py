@@ -10,6 +10,7 @@ import pytils
 STATUS_STATUS = (
     ('d', 'Не утверждена'),
     ('p', 'Утверждена'),
+    ('r', 'Удалить'),
 )
 
 class RandomText(models.Model):
@@ -21,8 +22,8 @@ class RandomText(models.Model):
         return self.random_text_body
 
     class Meta:
-        verbose_name = "случайный блок"
-        verbose_name_plural = "Случайные блоки"
+        verbose_name = "случайный заголовок"
+        verbose_name_plural = "Случайные заголовки"
 
 class Category(models.Model):
     '''Модель категорий (тегов)'''
@@ -56,6 +57,7 @@ class VStatus(models.Model):
     status_vote_no = models.IntegerField(verbose_name='Голосов против', blank=True, null=True, default=0)
     status_date = models.DateField(auto_now=True, verbose_name=u'Дата публикации')
     status_author = models.ForeignKey(User, verbose_name=u'Автор')
+    status_category = models.ManyToManyField(Category, verbose_name=u'Категории', blank=True)
 
     def __unicode__(self):
         return self.status_text

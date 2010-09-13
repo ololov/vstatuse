@@ -21,7 +21,7 @@ urlpatterns = patterns('',
 
     (r'^vote/(?P<action>[\-\d\w]+)/(?P<id>[\-\d\w]+)/$', 'status.views.vote'),
 
-    (r'^source/(?P<source>[\-\d\w]+)$', 'status.views.by_this_source'), # скорее всего выброшу
+    #(r'^source/(?P<source>[\-\d\w]+)$', 'status.views.by_this_source'), # скорее всего выброшу
 
 # Сортировка
     (r'^random-ten/$', 'status.views.random_ten'),

@@ -4,8 +4,9 @@
 #
 # Для работы этой вьюшки требуются модули pytils, dateutil
 
+from django.db.models import Avg, Max, Min, Count
 from django.shortcuts import HttpResponse, render_to_response#, HttpResponseRedirect
-from status.models import VStatus
+from status.models import VStatus, RandomText
 #from django.contrib.auth.models import User
 from customuser.models import CustomUser
 from django.core.paginator import Paginator
@@ -16,17 +17,9 @@ import re
 import pytils
 from random import *
 
-# Всего статусов, включая не опубликованные
-all_status_count = VStatus.objects.all().count()
-# Список юзеров
 all_user = CustomUser.objects.all()
-# Количество опубликованных статусов
-all_user_count_p = VStatus.objects.filter(status_status='p').count()
-# Количество не опубликованных статусов
-all_user_count_d = VStatus.objects.filter(status_status='d').count()
-
 #Store.objects.annotate(min_price=Min('books__price'), max_price=Max('books__price'))
-
+#for i in VStatus.objects.values('status_author__username', 'status_vote_yes', 'status_vote_no').annotate(Count('status_author')):
 # Создаю список юзеров с количеством статусов
 list = []
 coll_list = {}
@@ -57,7 +50,36 @@ for i in all_user:
 
 from operator import itemgetter
 user_list = sorted(list, key=itemgetter("status_count"), reverse=True)
-#print user_list
+
+def user_best_cookies(request):
+    try:
+        yes_votes_list = request.session.get('yes_votes_list')
+        yes_votes_list_count = len(yes_votes_list)
+        no_votes_list = request.session.get('no_votes_list')
+    except:
+        yes_votes_list = []
+        no_votes_list = []
+        yes_votes_list_count = 0
+    best_list={}
+    best_list['yes_votes_list'] = yes_votes_list
+    best_list['no_votes_list'] = no_votes_list
+    best_list['yes_votes_list_count'] = yes_votes_list_count
+    return best_list
+
+def def_values(request):
+    '''Значения используемые в большинстве вьюшек'''
+    best_cookies = user_best_cookies(request)
+    return {
+            'random_header': RandomText.objects.order_by('?')[1].random_text_body,
+            'all_status_count':VStatus.objects.all().count(),
+            'all_user_count':all_user.count(),
+            'all_user':user_list,
+            'all_user_count_p':VStatus.objects.filter(status_status='p').count(),
+            'yes_votes_list':best_cookies['yes_votes_list'],
+            'no_votes_list':best_cookies['no_votes_list'],
+            'yes_votes_list_count':best_cookies['yes_votes_list_count']
+        }
+
 def unescape(text):
     """Removes HTML or XML character references
        and entities from a text string
@@ -84,21 +106,6 @@ def unescape(text):
             text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
         return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
-
-def user_best_cookies(request):
-    try:
-        yes_votes_list = request.session.get('yes_votes_list')
-        yes_votes_list_count = len(yes_votes_list)
-        no_votes_list = request.session.get('no_votes_list')
-    except:
-        yes_votes_list = []
-        no_votes_list = []
-        yes_votes_list_count = 0
-    best_list={}
-    best_list['yes_votes_list'] = yes_votes_list
-    best_list['no_votes_list'] = no_votes_list
-    best_list['yes_votes_list_count'] = yes_votes_list_count
-    return best_list
 
 def add_base(request):
     from status.old_status import aa
@@ -183,20 +190,6 @@ def add_base(request):
     return HttpResponse('<b>Добавлено:</b> ' + str(st))
 
 def index(request):
-    #from django.db.models import Avg, Max, Min, Count
-    #print CustomUser.objects.all()
-    #print User.objects.all()
-    #from random import *
-    #print randint(12, 127)
-    #time_tuple = (2010, 07, 01, 13, 59, 27, 2, 317, 0)
-    #timestamp = time.mktime(time_tuple)
-    #print datetime(*time_tuple[0:6])
-    #print timestamp
-    #for i in VStatus.objects.values('status_author__username', 'status_vote_yes', 'status_vote_no').annotate(Count('status_author')):
-        #print i
-    #for i in user_list:
-        #print i
-    best_cookies = user_best_cookies(request)
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
     try:
@@ -207,21 +200,17 @@ def index(request):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    return render_to_response('template_status.html',{
-                                'status':status,
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'по Рейтингу',
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+
+    dict = {'status':status,
+            'title':'по Рейтингу',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def by_this_date(request, this_date):
     import time
-    best_cookies = user_best_cookies(request)
+    #best_cookies = user_best_cookies(request)
     e = this_date.split("-")
     status_list = VStatus.objects.filter(status_status='p', status_date__day=e[2], status_date__month=e[1], status_date__year=e[0]).order_by('-status_rating')
     paginator = Paginator(status_list, 10)
@@ -233,63 +222,25 @@ def by_this_date(request, this_date):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    return render_to_response('template_status.html',{
-                                'status':status,
-                                'current':'sort',
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':pytils.dt.ru_strftime(u"за %d %B %Y", datetime.datetime.fromtimestamp(time.mktime(time.strptime(this_date, "%Y-%m-%d"))), inflected=True),
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+
+    dict = {'status':status,
+            'current':'sort',
+            'title':pytils.dt.ru_strftime(u"за %d %B %Y", datetime.datetime.fromtimestamp(time.mktime(time.strptime(this_date, "%Y-%m-%d"))), inflected=True),
+    }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def random_ten(request):
-    best_cookies = user_best_cookies(request)
-    status = VStatus.objects.order_by('?')[:10]
-    return render_to_response('template_status_ten.html',{
-                                'status':status,
-                                'current':'sort',
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'Случайная десятка',
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
-
-def by_this_source(request, source):
-    '''Оставляю до лучших времен'''
-    best_cookies = user_best_cookies(request)
-    status_list = VStatus.objects.filter(status_status='p', status_source=source).order_by('-status_rating')
-    paginator = Paginator(status_list, 10)
-    try:
-        page = int(request.GET.get('page', '1'))
-    except ValueError:
-        page = 1
-    try:
-        status = paginator.page(page)
-    except (EmptyPage, InvalidPage):
-        status = paginator.page(paginator.num_pages)
-    return render_to_response('template_status.html',{
-                                'status':status,
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'по Дате',
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+    dict = {'status':VStatus.objects.order_by('?')[:10],
+            'current':'sort',
+            'title':'Случайная десятка',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status_ten.html', dict2, context_instance=RequestContext(request))
 
 def by_this_rating(request, rating):
-    #print rating.replace("-", ".")
-    best_cookies = user_best_cookies(request)
     status_list = VStatus.objects.filter(status_status='p', status_rating=rating.replace("-", "."))
     paginator = Paginator(status_list, 10)
     try:
@@ -300,28 +251,22 @@ def by_this_rating(request, rating):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    return render_to_response('template_status.html',{
-                                'status':status,
-                                'current':'sort',
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+
+    dict = {'status':status,
+            'current':'sort',
+            'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def order(request, ordering):
-    best_cookies = user_best_cookies(request)
     order_list = [['date','по Дате','-status_date'], ['rating','по Рейтингу','-status_rating'], ['user-top','по Понравившимся','-status_rating']]
     for i in order_list:
         if i[0] == ordering:
             ordering = i
             this_url = i[0]
-    #print ordering[1]
-
+    best_cookies = user_best_cookies(request)
     status_list = VStatus.objects.filter(status_status='p').order_by(ordering[2])
     if this_url == 'user-top':
         new_list = []
@@ -340,22 +285,15 @@ def order(request, ordering):
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
 
-    return render_to_response('template_status.html',{
-                                'status':status,
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':ordering[1],
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'current':'sort',
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+    dict = {'status':status,
+            'title':ordering[1],
+            'current':'sort',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def by_autor(request, autor):
-    best_cookies = user_best_cookies(request)
-
     status_list = VStatus.objects.filter(status_status='p', status_author__id=autor).order_by('-status_rating')
     this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
@@ -367,22 +305,15 @@ def by_autor(request, autor):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    return render_to_response('template_status.html',{
-                                'status':status,
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'Автор ' + this_username.encode("UTF-8"),
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'current':'autor',
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+    dict = {'status':status,
+            'title':'Автор ' + this_username.encode("UTF-8"),
+            'current':'autor',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def all_autor(request):
-    best_cookies = user_best_cookies(request)
-
     paginator = Paginator(user_list, 10)
     try:
         page = int(request.GET.get('page', '1'))
@@ -392,31 +323,19 @@ def all_autor(request):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-
-    return render_to_response('template_autors.html',{
-                                'status':status,
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'Все пользователи',
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'user_list':list,
-                                'current':'autor',
-                                'yes_votes_list':best_cookies['yes_votes_list'],
-                                'no_votes_list':best_cookies['no_votes_list'],
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count']
-                            }, context_instance=RequestContext(request))
+    dict = {'status':status,
+            'title':'Все пользователи',
+            'current':'autor',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_autors.html', dict2, context_instance=RequestContext(request))
 
 def add_status(request):
-    return render_to_response('template_add_status.html',{
-                                #'status':status,
-                                'all_status_count':all_status_count,
-                                'all_user_count':all_user_count,
-                                'title':'Добавление статуса',
-                                'all_user':user_list,
-                                'all_user_count_p':all_user_count_p,
-                                'user_list':list
-                            }, context_instance=RequestContext(request))
+    dict = {'title':'Добавление статуса',}
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_add_status.html', dict2, context_instance=RequestContext(request))
 
 def vote(request, action, id):
     cookies = request.session
@@ -461,8 +380,6 @@ def order_best(request, ordering, num):
         else:
             ffpaginate['next'] = {'date': next, 'link':'/order-by/best/' + ordering + '/' + str(num - 1)}
         return ffpaginate
-
-    best_cookies = user_best_cookies(request)
     start_day = datetime.date.today()
     num = int(num)
     if ordering == 'day':
@@ -496,16 +413,11 @@ def order_best(request, ordering, num):
         next = pytils.dt.ru_strftime(u"за %B", next_date, inflected=False)
     paginate = fpaginate(start, prev, next, next_date, ordering)
 
-    return render_to_response('template_status_best.html',{
-                                'status':status_list, # список статусов
-                                'all_status_count':all_status_count, # всего авторов
-                                'all_user_count':all_user_count, # всего юзеров
-                                'all_user':user_list, # список всех юзеров
-                                'all_user_count_p':all_user_count_p, # всего опубликованных статусов
-                                'current':'best', # название текущей вкладки
-                                'yes_votes_list':best_cookies['yes_votes_list'], # лучшие статусы отмеченные юзером
-                                'no_votes_list':best_cookies['no_votes_list'], # худшие статусы отмеченные юзером
-                                'yes_votes_list_count':best_cookies['yes_votes_list_count'], # количество лучших статусов
-                                'paginate':paginate # пейджинатор по датам
-                            }, context_instance=RequestContext(request))
+    dict = {'status':status_list,
+            'current':'best',
+            'paginate':paginate
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status_best.html', dict2, context_instance=RequestContext(request))
 
