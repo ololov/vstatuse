@@ -326,7 +326,6 @@ def all_autor(request):
     dict2.update(dict)
     return render_to_response('template_autors.html', dict2, context_instance=RequestContext(request))
 
-
 def add_status(request):
     from django.contrib.auth.models import User
     from django.core.context_processors import csrf
@@ -337,9 +336,9 @@ def add_status(request):
         form = AddStatusForm(request.POST)
         if form.is_valid():
             if request.user.is_superuser:
-                nn_user = User.objects.get(id = request.user.id)
+                nn_user = CustomUser.objects.get(id = request.user.id)
             else:
-                nn_user = User.objects.filter(is_superuser=True).order_by('?')[0]
+                nn_user = CustomUser.objects.filter(is_superuser=True).order_by('?')[0]
             new_status = form.save(commit=False)
             new_status.status_author = nn_user
             new_status.status_date = datetime.datetime.today()
@@ -366,6 +365,7 @@ def add_status(request):
     return render_to_response('template_add_status.html', dict2, context_instance=RequestContext(request))
 
 def vote(request, action, id):
+    def_val = def_values(request)
     cookies = request.session
     if action == 'yes':
         if request.session.get('yes_votes_list'):
@@ -377,7 +377,7 @@ def vote(request, action, id):
             cookies.save()
         this_status = VStatus.objects.get(id = id)
         this_status.status_vote_yes += 1
-        this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/all_user_count_p, 2)
+        this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/def_val['all_user_count_p'], 2)
         this_status.status_vote_yes_date = datetime.datetime.now()
         this_status.save()
     elif action == 'no':
@@ -392,7 +392,7 @@ def vote(request, action, id):
         this_status.status_vote_no -= 1
         if this_status.status_vote_no == -10:
             this_status.status_status = 'd'
-        this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/all_user_count_p, 2)
+        this_status.status_rating = round(((this_status.status_vote_yes+this_status.status_vote_no)*100.)/def_val['all_user_count_p'], 2)
         this_status.save()
     return HttpResponse('')
 
