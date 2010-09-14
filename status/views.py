@@ -6,7 +6,7 @@
 
 from django.db.models import Avg, Max, Min, Count
 from django.shortcuts import HttpResponse, render_to_response, HttpResponseRedirect
-from status.models import VStatus, RandomText
+from status.models import VStatus, RandomText, Category
 #from django.contrib.auth.models import User
 from customuser.models import CustomUser
 from django.core.paginator import Paginator
@@ -16,6 +16,7 @@ from dateutil.relativedelta import *
 import re
 import pytils
 from random import *
+import time
 
 all_user = CustomUser.objects.all()
 #Store.objects.annotate(min_price=Min('books__price'), max_price=Max('books__price'))
@@ -78,111 +79,10 @@ def def_values(request):
             'all_user_count_p':VStatus.objects.filter(status_status='p').count(),
             'yes_votes_list':best_cookies['yes_votes_list'],
             'no_votes_list':best_cookies['no_votes_list'],
-            'yes_votes_list_count':best_cookies['yes_votes_list_count']
+            'yes_votes_list_count':best_cookies['yes_votes_list_count'],
+            'category': Category.objects.all()
+
         }
-
-def unescape(text):
-    """Removes HTML or XML character references
-       and entities from a text string"""
-    def fixup(m):
-        text = m.group(0)
-        if text[:2] == "&#":
-            # Character reference
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                print "Error with encoding HTML entities"
-                pass
-        else:
-            # Named entity
-            text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-        return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
-
-def add_base(request):
-    from status.old_status import aa
-    from datetime import *
-    import time
-    #print date.fromtimestamp(randint(1230811167.0, 1277985567.0)) # Рандомная дата
-
-    b = r'(?P<xx>,|\.)(?P<yy>[^\s\W])'
-    st = 0
-    for ee in aa.split("),("):
-        text = ee.split("','")[2]
-        text = re.sub('<[^>]+>', '', text.replace("\\", ""))
-        if len(text) < 140:
-            if '&#' not in text:
-                text = re.sub(b, "\g<xx> \g<yy>",  text)
-                st+=1
-                st_add = unescape(ee.split("','")[5])
-                if st_add != 'admin':
-                    tru_user = False
-                    try:
-                        add_user = CustomUser.objects.get(username=st_add) ###
-                    except:
-                        test_mail = st_add + '@testuser.com'
-                        test_pass = st_add + 'pass'
-                        add_user = CustomUser(username=st_add, provider='http://vkontakte.ru/', photo='', identity='')
-                        add_user.save()
-                else:
-                    tru_user = True
-                    admin_user = randint(1,3)
-                    if admin_user == 1:
-                        try:
-                            add_user = CustomUser.objects.get(username='Yegor Kowalew')
-                        except:
-                            add_user = CustomUser(username='Yegor Kowalew', provider='http://vkontakte.ru/', photo='http://cs336.vkontakte.ru/u13175215/c_d5dabbe7.jpg', identity='http://vkontakte.ru/id13175215')
-                            add_user.save()
-                    elif admin_user == 2:
-                        try:
-                            add_user = CustomUser.objects.get(username='Артём Ватутин')
-                        except:
-                            add_user = CustomUser(username='Артём Ватутин', provider='http://vkontakte.ru/', photo='http://cs9942.vkontakte.ru/u6135314/c_cd457566.jpg', identity='http://vkontakte.ru/id13175215')
-                            add_user.save()
-
-                    elif admin_user == 3:
-                        try:
-                            add_user = CustomUser.objects.get(username='LaDioS')
-                        except:
-                            add_user = CustomUser(username='LaDioS', provider='http://vkontakte.ru/', photo='http://cs4186.vkontakte.ru/u13463936/a_6a70f089.jpg', identity='http://vkontakte.ru/id1300000')
-                            add_user.save()
-
-                if tru_user:
-                    new_status = VStatus(
-                    status_text = text,
-                    status_status = 'p',
-                    status_source = 'old base',
-                    status_vote_yes = randint(0, 10),
-                    status_vote_yes_date = date.fromtimestamp(randint(1230811167.0, 1277985567.0)),
-                    status_rating = 0,
-                    status_vote_no = randint(1, 3),
-                    status_date = ee.split("','")[1],
-                    status_author = add_user
-                    )
-                else:
-                    new_status = VStatus(
-                    status_text = text,
-                    status_status = 'p',
-                    status_source = 'old base',
-                    status_vote_yes = 0,
-                    status_rating = 0,
-                    status_vote_no = 0,
-                    status_date = ee.split("','")[1],
-                    status_author = add_user
-                    )
-                new_status.save()
-                #return HttpResponse("№:" + str(st))
-                print "№:", st, ' ', add_user.username, ' ', text
-
-    all_st = VStatus.objects.all()
-    for new_st in all_st:
-        new_st.status_rating = round(((new_st.status_vote_yes+new_st.status_vote_no)*100.)/all_user_count_p, 2)
-        print new_st.id, new_st.status_rating
-        new_st.save()
-    return HttpResponse('<b>Добавлено:</b> ' + str(st))
 
 def index(request):
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
@@ -204,8 +104,6 @@ def index(request):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def by_this_date(request, this_date):
-    import time
-    #best_cookies = user_best_cookies(request)
     e = this_date.split("-")
     status_list = VStatus.objects.filter(status_status='p', status_date__day=e[2], status_date__month=e[1], status_date__year=e[0]).order_by('-status_rating')
     paginator = Paginator(status_list, 10)

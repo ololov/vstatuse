@@ -74,6 +74,16 @@
              {% if yes_votes_list %}<li><a href="/order-by/user-top/" title="Отсортировать статусы по понравившимся">по понравившимся <span>{{ yes_votes_list_count }}</span></a></li>{% endif %}
                                </ul>
                             </li>
+                            <li {% if current = 'category' %}class="current-tab"{% endif %}>
+                                <a href="#">Категории</a>
+                                <ul class="children">
+                                {% for c in category %}
+                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.category_status_count }}</span></a> </li>
+                                {% endfor %}
+
+
+                               </ul>
+                            </li>
                             <li {% if current = 'best' %}class="current-tab"{% endif %}>
                                 <a href="#">Лучшие</a>
                                 <ul class="children">

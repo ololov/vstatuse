@@ -17,7 +17,8 @@ urlpatterns = patterns('',
     (r'', include('customuser.urls')),
 
     (r'^add-status/$', 'status.views.add_status'), # надо вынести в другой файл.
-    (r'^add-base/$', 'status.views.add_base'),
+    (r'^add-base/$', 'vs_admin.add_db.add_base'),
+    (r'^set-ratings/$', 'vs_admin.add_db.set_ratings'),
 
     (r'^vote/(?P<action>[\-\d\w]+)/(?P<id>[\-\d\w]+)/$', 'status.views.vote'),
 

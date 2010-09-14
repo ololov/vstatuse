@@ -1,0 +1,106 @@
+[
+  {
+    "model": "status.RandomText",
+    "pk": 1,
+    "fields": {
+      "random_text_body": "Сделай себе хорошо - установи прикольный статус!!!",
+      "random_text_status": "p"
+    }
+  },
+  {
+    "model": "status.RandomText",
+    "pk": 2,
+    "fields": {
+      "random_text_body": "Не будь хрюшкой - воспользуйся менюшкой!",
+      "random_text_status": "p"
+    }
+  },
+  {
+    "model": "status.RandomText",
+    "pk": 3,
+    "fields": {
+      "random_text_body": "Раз, два, три - на статусы смотри",
+      "random_text_status": "p"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 1,
+    "fields": {
+      "category_name": "Приколы",
+      "category_slug": "comedy"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 2,
+    "fields": {
+      "category_name": "Любовь",
+      "category_slug": "love"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 3,
+    "fields": {
+      "category_name": "Секс",
+      "category_slug": "sex"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 4,
+    "fields": {
+      "category_name": "Интернет",
+      "category_slug": "internet"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 5,
+    "fields": {
+      "category_name": "Друзьям",
+      "category_slug": "for-friends"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 6,
+    "fields": {
+      "category_name": "Учеба",
+      "category_slug": "studies"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 7,
+    "fields": {
+      "category_name": "Деньги",
+      "category_slug": "money"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 8,
+    "fields": {
+      "category_name": "Автомобильные",
+      "category_slug": "auto"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 9,
+    "fields": {
+      "category_name": "Грусть",
+      "category_slug": "melancholy"
+    }
+  },
+  {
+    "model": "status.Category",
+    "pk": 10,
+    "fields": {
+      "category_name": "Похмелье",
+      "category_slug": "hangover"
+    }
+  }
+]
