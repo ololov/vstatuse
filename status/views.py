@@ -18,40 +18,6 @@ import pytils
 from random import *
 import time
 
-all_user = CustomUser.objects.all()
-#Store.objects.annotate(min_price=Min('books__price'), max_price=Max('books__price'))
-#for i in VStatus.objects.values('status_author__username', 'status_vote_yes', 'status_vote_no').annotate(Count('status_author')):
-# Создаю список юзеров с количеством статусов
-list = []
-coll_list = {}
-all_user_count = all_user.count() # Всего юзеров
-for i in all_user:
-    coll_list['name'] = i.username
-    coll_list['id'] = i.id
-    autor_status = VStatus.objects.filter(status_author = i)
-    coll_list['status_count'] = autor_status.count()
-    votes_yes = 0
-    votes_no = 0
-    max_rating = 0
-    for st in autor_status:
-        votes_yes = votes_yes + st.status_vote_yes
-        votes_no = votes_no + st.status_vote_no
-        if max_rating < st.status_rating:
-            max_rating = st.status_rating
-    coll_list['date_joined'] = i.date_joined
-    coll_list['votes_no'] = votes_no
-    coll_list['votes_yes'] = votes_yes
-    coll_list['max_rating'] = max_rating
-    try:
-        coll_list['autor_rating'] = ((votes_yes-votes_no)*100.)/all_user_count_p
-    except:
-        coll_list['autor_rating'] = 0.0
-    list.append(coll_list)
-    coll_list = {}
-
-from operator import itemgetter
-user_list = sorted(list, key=itemgetter("status_count"), reverse=True)
-
 def user_best_cookies(request):
     '''Выбираю куки пользователя'''
     try:
@@ -71,25 +37,21 @@ def user_best_cookies(request):
 def def_values(request):
     '''Значения используемые в большинстве вьюшек'''
     best_cookies = user_best_cookies(request)
+    all_user = CustomUser.objects.annotate(num_status=Count('vstatus')).order_by('-num_status')
     return {
             'random_header': RandomText.objects.order_by('?')[1].random_text_body,
             'all_status_count':VStatus.objects.all().count(),
             'all_user_count':all_user.count(),
-            'all_user':user_list,
+            'all_user':all_user[:5],
             'all_user_count_p':VStatus.objects.filter(status_status='p').count(),
             'yes_votes_list':best_cookies['yes_votes_list'],
             'no_votes_list':best_cookies['no_votes_list'],
             'yes_votes_list_count':best_cookies['yes_votes_list_count'],
             'category': Category.objects.annotate(num_status=Count('vstatus')).filter(num_status__gt = 0).order_by('-num_status')
-
         }
 
 def index(request):
-    #for i in Category.objects.values('', '', 'status_vote_no').annotate(Count('status_author')):
-    #Publisher.objects.filter(book__rating__gt=3.0).annotate(num_books=Count('book'))
-    print Category.objects.annotate(num_status=Count('vstatus'))
-    for i in Category.objects.annotate(num_status=Count('vstatus')).order_by('-num_status'):
-        print i.num_status
+    '''Стартовая страница'''
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
     try:
@@ -109,6 +71,7 @@ def index(request):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def by_this_date(request, this_date):
+    '''По конкретной дате'''
     e = this_date.split("-")
     status_list = VStatus.objects.filter(status_status='p', status_date__day=e[2], status_date__month=e[1], status_date__year=e[0]).order_by('-status_rating')
     paginator = Paginator(status_list, 10)
@@ -130,6 +93,7 @@ def by_this_date(request, this_date):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def random_ten(request):
+    '''Случайная десятка'''
     dict = {'status':VStatus.objects.order_by('?')[:10],
             'current':'sort',
             'title':'Случайная десятка',
@@ -139,6 +103,7 @@ def random_ten(request):
     return render_to_response('template_status_ten.html', dict2, context_instance=RequestContext(request))
 
 def by_this_rating(request, rating):
+    '''По конкретному рейтингу'''
     status_list = VStatus.objects.filter(status_status='p', status_rating=rating.replace("-", "."))
     paginator = Paginator(status_list, 10)
     try:
@@ -159,6 +124,7 @@ def by_this_rating(request, rating):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def order(request, ordering):
+    '''Первый пункт меню "Сортировка" '''
     order_list = [['date','по Дате','-status_date'], ['rating','по Рейтингу','-status_rating'], ['user-top','по Понравившимся','-status_rating']]
     for i in order_list:
         if i[0] == ordering:
@@ -192,6 +158,7 @@ def order(request, ordering):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def by_autor(request, autor):
+    '''По автору'''
     status_list = VStatus.objects.filter(status_status='p', status_author__id=autor).order_by('-status_rating')
     this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
@@ -204,7 +171,7 @@ def by_autor(request, autor):
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
     dict = {'status':status,
-            'title':'Автор ' + this_username.encode("UTF-8"),
+            'title':'Автор ' + this_username.encode("UTF-8") + ', статусов ' + str(status_list.count()),
             'current':'autor',
         }
     dict2 = def_values(request).copy()
@@ -212,6 +179,7 @@ def by_autor(request, autor):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def by_category(request, category):
+    '''По категории'''
     category = Category.objects.get(category_slug = category)
     status_list = VStatus.objects.filter(status_status='p', status_category = category).order_by('-status_rating')
     paginator = Paginator(status_list, 10)
@@ -232,6 +200,8 @@ def by_category(request, category):
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
 def all_autor(request):
+    '''Все авторы'''
+    user_list = CustomUser.objects.all()
     paginator = Paginator(user_list, 10)
     try:
         page = int(request.GET.get('page', '1'))
@@ -250,6 +220,7 @@ def all_autor(request):
     return render_to_response('template_autors.html', dict2, context_instance=RequestContext(request))
 
 def add_status(request):
+    '''Добавление статуса'''
     from django.contrib.auth.models import User
     from django.core.context_processors import csrf
     from status.forms import *
@@ -289,6 +260,7 @@ def add_status(request):
     return render_to_response('template_add_status.html', dict2, context_instance=RequestContext(request))
 
 def vote(request, action, id):
+    '''Голосование'''
     def_val = def_values(request)
     cookies = request.session
     if action == 'yes':
@@ -321,6 +293,7 @@ def vote(request, action, id):
     return HttpResponse('')
 
 def order_best(request, ordering, num):
+    '''Лучшие за день, неделю, месяц'''
     def fpaginate(date_start, prev, next, next_date, ordering):
         ffpaginate={}
         ffpaginate['title'] = u'Лучшие ' + date_start

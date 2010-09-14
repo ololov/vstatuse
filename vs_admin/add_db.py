@@ -33,7 +33,7 @@ def unescape(text):
 def add_base(request):
     '''Добавление в базу статусов из старой базы'''
     from status.old_status import aa
-    report_text = '<b>Добавлено:</b> так же нужно <a href="/set-ratings/">пересчитать</a> рейтинги!!!<br>'
+    report_text = 'Так же нужно <a href="/set-ratings/">пересчитать</a> рейтинги!!!<br> <b>Добавлено:</b><br>'
     b = r'(?P<xx>,|\.)(?P<yy>[^\s\W])'
     st = 0
     for ee in aa.split("),("):
@@ -73,7 +73,7 @@ def add_base(request):
                         try:
                             add_user = CustomUser.objects.get(username='LaDioS')
                         except:
-                            add_user = CustomUser(username='LaDioS', provider='http://vkontakte.ru/', photo='http://cs4186.vkontakte.ru/u13463936/a_6a70f089.jpg', identity='http://vkontakte.ru/id1300000')
+                            add_user = CustomUser(username='LaDioS', provider='http://vkontakte.ru/', photo='http://cs4982.vkontakte.ru/u13463936/c_a17e9382.jpg', identity='http://vkontakte.ru/id1300000')
                             add_user.save()
 
                 if tru_user:

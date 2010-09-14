@@ -9,37 +9,18 @@
     <script type="text/javascript" src="/stat/js/extentions.js"></script>
     <script src="http://s1.loginza.ru/js/widget.js" type="text/javascript"></script>
 
-<style type="text/css">
-.ticket-status.critical {
-    background:#ff5454;
-    color:#FFFFFF;
-    }
-.ticket-status.hold {
-    background:#bcbcbc;
-    color:#FFFFFF;
-    }
-.ticket-status.new {
-    background:#93ce11;
-    color:#FFFFFF;
-    }
-.ticket-status.open {
-    background:#df6800;
-    color:#FFFFFF;
-    }
-.ticket-status.resolved {
-    background:#DAE2E8;
-    color:#45688E;
-    }
-</style>
-    <style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
-</head>
-{% load post_extras %}
+    <style type="text/css">
+    .ticket-status.critical {background:#ff5454; color:#FFFFFF;}
+    .ticket-status.hold {background:#bcbcbc; color:#FFFFFF;}
+    .ticket-status.new {background:#93ce11; color:#FFFFFF;}
+    .ticket-status.open {background:#df6800; color:#FFFFFF;}
+    .ticket-status.resolved {background:#DAE2E8; color:#45688E;}
+    .recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}
+    </style>
+</head>{% load post_extras %}
 <body class="home blog">
-
     <div id="container">
-
         <div id="top">
-
 <div id="menu" class="menu-navigation-container">
     <ul id="access">
         <li>Cтатусов: <b>{{ all_status_count }}</b></li>
@@ -47,19 +28,15 @@
     </ul>
 </div>
 <div id="logged-in">
-<a href="#">Небольшая справка</a>
-{% if user.is_authenticated %}
-    <a href="/logout" title="Просмотр профиля">{{user.username}}</a>
-{% else %}
-    <a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&provider=vkontakte" class="loginza">Войти через Вконтакте.ru</a>
-{% endif %}
+    <a href="#">Небольшая справка</a>{% if user.is_authenticated %}
+    <a href="/logout" title="Просмотр профиля">{{user.username}}</a>{% else %}
+    <a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&provider=vkontakte" class="loginza">Войти через Вконтакте.ru</a>{% endif %}
 </div>
-        </div><!-- End #top -->
+    </div>
         <div id="branding" role="banner">
             <h1 id="site-title"><a href="/">Vstatuse</a> <span>&rarr;</span> {% block header %}{{ title }}{% endblock header %}</h1>
             <div class="tagline">{{ random_header }}</div>
-        </div><!-- End #header -->
-
+        </div>
         <div id="content">
             <div id="main" role="main">
                 <div id="ticket-manager" class="tabber">
@@ -78,10 +55,7 @@
                                 <a href="#">Категории</a>
                                 <ul class="children">
                                 {% for c in category %}
-                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.num_status }}</span></a> </li>
-                                {% endfor %}
-
-
+                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.num_status }}</span></a> </li>{% endfor %}
                                </ul>
                             </li>
                             <li {% if current = 'best' %}class="current-tab"{% endif %}>
@@ -95,11 +69,7 @@
                             <li {% if current = 'autor' %}class="current-tab"{% endif %}>
                                 <a href="#">Авторы</a>
                                 <ul class="children">
-                                    {% for user in all_user %}
-                                        {% if forloop.counter0 < 3%}
-                                            <li><a href="/autor/{{ user.id  }}" title="Статусы пользователя {{ user.name }}">{{ user.name  }}<span>{{ user.status_count }}</span></a> </li>
-                                        {% endif %}
-                                    {% endfor %}
+                                    {% for user in all_user %}<li><a href="/autor/{{ user.id  }}" title="Статусы пользователя {{ user.username }}">{{ user.username  }}<span>{{ user.status_count }}</span></a></li>{% endfor %}
                                         <li><a href="/autor/all" title="Просмотреть всех авторов">Все <span>{{ all_user_count }}</span></a> </li>
                                </ul>
                             </li>
@@ -150,35 +120,18 @@
     <h3 class="widget-title">Лучшие авторы</h3>
     <ul id="recentcomments">
 {% for user in all_user %}
-    {% if  forloop.counter0 < 5 %}
-    <li>
-    <a href="/autor/{{ user.id  }}" title="">{{ user.name  }}</a>
-    <a href="/autor/{{ user.id  }}" class="rss"><b>({{ user.status_count }})</b></a>
-    </li>
-<!--
-        <li><a href="/autor/{{ user.name  }}" title="">{{ user.name  }}<span>{{ user.status_count  }}</span></a> </li>
--->
-    {% endif %}
-    <!-- <li><a href="/autor/{{ user }}" title="">{{ user }}</a> </li> -->
-{% endfor %}
+<li><a href="/autor/{{ user.id  }}" title="">{{ user.username  }}</a><a href="/autor/{{ user.id  }}" class="rss"><b>({{ user.status_count }})</b></a></li>{% endfor %}
     </ul>
 </li>
 </ul>
-
-            </div><!-- End #sidebar -->
-
-        </div><!-- End #content -->
-
-        <div id="footer">
-
-            <ul>
-                <li>Сделано при помощи <a href="http://sdesign.com.ua">sdesign.com.ua</a> и <a href="http://kwblog.net">Yegor Kowalew</a>
-                <li class="alignright">Верисия: 1.0 Beta.</li>
-            </ul>
-
-        </div>
-
-    </div><!-- End #container -->
-
+</div>
+</div>
+<div id="footer">
+    <ul>
+        <li>Сделано при помощи <a href="http://sdesign.com.ua">sdesign.com.ua</a> и <a href="http://kwblog.net">Yegor Kowalew</a>
+        <li class="alignright">Верисия: 1.0 Beta.</li>
+    </ul>
+    </div>
+</div>
     </body>
 </html>

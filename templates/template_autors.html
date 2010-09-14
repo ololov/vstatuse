@@ -1,4 +1,5 @@
 {% extends 'template_base.html' %}
+{% load post_extras %}
 
 {% block title %}{{ title }}{% endblock title %}
 
@@ -7,29 +8,16 @@
 {% for st in status.object_list %}
 <li class="ticket">
     <p class="ticket-author">зарегистрирован  <a href="#">{{ st.date_joined|date:"D d M Y" }}</a></p>
-    <a href="#" class="ticket-status new">{{ st.status_count }}</a>
-    <h2 class="ticket-title"><a href="/autor/{{ st.id }}">{{ st.name }}</a></h2>
+    {% if st.photo %}<a href="{{ st.identity }}"><img src="{{ st.photo }}" title="Перейти на страницу пользователя"/></a>{% endif %}
+    <h2 class="ticket-title">{{ st.username }}</h2>
     <ul class="ticket-meta" style="display:none">
-        <li><small>Добавил статусов</small>{{ st.status_count }}</li>
-        <li><small>Положительных оценок</small><a href="#" title="Просмотреть по дате" rel="category tag">{{ st.votes_yes }}</a></li>
-        <li><small>Отрицательных оценок</small><a href="#" title="Просмотреть по дате" rel="category tag">{{ st.votes_no }}</a></li>
-        <li><small>Рейтинг автора</small><a href="#" title="Просмотреть по дате" rel="category tag">{{ st.autor_rating|floatformat }}</a></li>
+        <li><small>Добавил статусов</small><a href="/autor/{{ st.id }}" title="Просмотреть все статусы автора">{{ st.status_count }}</a></li>
+        <li><small>Положительных оценок</small><a href="/order-by/autor/yes-votes" title="Просмотреть по положительным оценкам" rel="category tag">{{ st.max_votes_yes }}</a></li>
+        <li><small>Отрицательных оценок</small><a href="/order-by/autor/no-votes" title="Просмотреть по отрицательным оценкам" rel="category tag">{{ st.max_votes_no }}</a></li>
+        {% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/rating/{{ st.user_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.user_rating }}</a></li>{% endif %}
 </ul>
 {% endfor %}
 
 {% endblock content %}
 
-
-{% block nav %}
-{% if status.has_other_pages %}
-<ul>
-{% if status.has_previous %}
-    <li><a href="?page={{ status.previous_page_number }}">Предыдущие</a></li>
-{% endif %}
-
-{% if status.has_next %}
-    <li class="alignright"><a href="?page={{ status.next_page_number }}">Следующие</a></li>
-{% endif %}
-</ul>
-{% endif %}
-{% endblock nav %}
+{% block nav %}{% if status.has_other_pages %}<ul>{% if status.has_previous %}<li><a href="?page={{ status.previous_page_number }}">Предыдущие</a></li>{% endif %}{% if status.has_next %}<li class="alignright"><a href="?page={{ status.next_page_number }}">Следующие</a></li>{% endif %}</ul>{% endif %}{% endblock nav %}
