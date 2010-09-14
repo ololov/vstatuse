@@ -4,6 +4,7 @@
 #
 # Для работы этой вьюшки требуются модули pytils, dateutil
 
+
 from django.db.models import Avg, Max, Min, Count
 from django.shortcuts import HttpResponse, render_to_response, HttpResponseRedirect
 from status.models import VStatus, RandomText, Category
