@@ -22,16 +22,3 @@ class CustomUser(User):
     class Meta:
         verbose_name = "пользователя"
         verbose_name_plural = "пользователи"
-
-'''
-Надо будет добавить.
-rr = {
-'max_rating': 0, выбрасываю, зачем на столько нагружать
-'name': u'Katerina', есть
-'votes_yes': 0, есть
-'votes_no': 0, есть
-'autor_rating': 0.0, есть
-'status_count': 1, есть
-'id': 111,
-'date_joined': datetime.datetime(2010, 9, 12, 4, 57, 1, 642738)}
-'''

@@ -80,11 +80,16 @@ def def_values(request):
             'yes_votes_list':best_cookies['yes_votes_list'],
             'no_votes_list':best_cookies['no_votes_list'],
             'yes_votes_list_count':best_cookies['yes_votes_list_count'],
-            'category': Category.objects.all()
+            'category': Category.objects.annotate(num_status=Count('vstatus')).filter(num_status__gt = 0).order_by('-num_status')
 
         }
 
 def index(request):
+    #for i in Category.objects.values('', '', 'status_vote_no').annotate(Count('status_author')):
+    #Publisher.objects.filter(book__rating__gt=3.0).annotate(num_books=Count('book'))
+    print Category.objects.annotate(num_status=Count('vstatus'))
+    for i in Category.objects.annotate(num_status=Count('vstatus')).order_by('-num_status'):
+        print i.num_status
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
     try:
@@ -206,6 +211,26 @@ def by_autor(request, autor):
     dict2.update(dict)
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
+def by_category(request, category):
+    category = Category.objects.get(category_slug = category)
+    status_list = VStatus.objects.filter(status_status='p', status_category = category).order_by('-status_rating')
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    dict = {'status':status,
+            'title':'Категория '+ category.category_name.encode("UTF-8"),
+            'current':'category',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
+
 def all_autor(request):
     paginator = Paginator(user_list, 10)
     try:
@@ -240,6 +265,7 @@ def add_status(request):
             new_status = form.save(commit=False)
             new_status.status_author = nn_user
             new_status.status_date = datetime.datetime.today()
+            new_status.status_status = 'd'
             new_status.save()
             form.save_m2m()
         else:

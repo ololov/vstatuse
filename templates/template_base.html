@@ -78,7 +78,7 @@
                                 <a href="#">Категории</a>
                                 <ul class="children">
                                 {% for c in category %}
-                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.category_status_count }}</span></a> </li>
+                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.num_status }}</span></a> </li>
                                 {% endfor %}
 
 
