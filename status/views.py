@@ -5,19 +5,15 @@
 # Для работы этой вьюшки требуются модули pytils, dateutil
 
 
-from django.db.models import Avg, Max, Min, Count
+from django.db.models import Count
 from django.shortcuts import HttpResponse, render_to_response, HttpResponseRedirect
 from status.models import VStatus, RandomText, Category
-#from django.contrib.auth.models import User
 from customuser.models import CustomUser
 from django.core.paginator import Paginator
 from django.template.context import RequestContext
 import datetime
 from dateutil.relativedelta import *
-import re
 import pytils
-from random import *
-import time
 
 def user_best_cookies(request):
     '''Выбираю куки пользователя'''
@@ -161,6 +157,32 @@ def order(request, ordering):
 def by_autor(request, autor):
     '''По автору'''
     status_list = VStatus.objects.filter(status_status='p', status_author__id=autor).order_by('-status_rating')
+    this_username = CustomUser.objects.get(id = autor).username
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+    dict = {'status':status,
+            'title':'Автор ' + this_username.encode("UTF-8") + ', статусов ' + str(status_list.count()),
+            'current':'autor',
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
+
+def autor_yes_no(request, autor, yesno):
+    '''По автору, с положительными или отрицательными голосами'''
+    if yesno == 'yes-votes':
+        status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_yes__gt = 0 ).order_by('-status_rating')
+    elif yesno == 'no-votes':
+        status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_no__gt = 0 ).order_by('-status_rating')
+    else:
+        print "Вернуть ошибку"
     this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
     try:
