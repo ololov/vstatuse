@@ -5,31 +5,23 @@
 
 {% block content %}
 {% load post_extras %}
-{% for st in status.object_list %}
-<li class="ticket">
-    <a href="/vote/yes/{{ st.id }}" class="ticket-status new {% if st.id in yes_votes_list %}resolved{% endif %}">{{ st.status_vote_yes }}</a> <a href="/vote/no/{{ st.id }}" class="ticket-status critical {% if st.id in no_votes_list %}resolved{% endif %}">{{ st.status_vote_no }}</a>
+<li class="this-ticket">
     <h2 class="ticket-title">{{ st.status_text }}</h2>
-    <ul class="ticket-meta" style="display:none">
+    <ul class="ticket-meta">
         <li><small>Автор</small><a href="/autor/{{ st.status_author.id }}" title="Просмотреть все статусы автора {{ st.status_author }}">{{ st.status_author }}</a></li>
         <li><small>Добавлен</small><a href="/date/{{ st.status_date }}" title="Просмотреть по дате {{ st.status_date|date:"D d M Y" }}" rel="category tag">{{ st.status_date|date:"D d M Y" }}</a></li>
         {% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/rating/{{ st.status_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.status_rating }}</a></li>{% endif %}
-        <li><small>Просмотреть/установить</small><a href="/status/{{ st.id|add_zero }}" title="Просмотреть по рейтингу">#{{ st.id|add_zero }}</a></li>
+        <li><small>"За"</small>{{ st.status_vote_yes }}</li>
+        <li><small>"Против"</small>{{ st.status_vote_no }}</li>
     </ul>
 </li>
-{% endfor %}
+
 
 {% endblock content %}
 
 {% block nav %}
-{% if status.has_other_pages %}
 <ul>
-{% if status.has_previous %}
-    <li><a href="?page={{ status.previous_page_number }}">Предыдущие</a></li>
-{% endif %}
-
-{% if status.has_next %}
-    <li class="alignright"><a href="?page={{ status.next_page_number }}">Следующие</a></li>
-{% endif %}
+    <li class="alignright"><a href="#">Установить</a></li>
 </ul>
-{% endif %}
 {% endblock nav %}
+<a href="/vote/yes/{{ st.id }}" class="ticket-status new {% if st.id in yes_votes_list %}resolved{% endif %}"></a> <a href="/vote/no/{{ st.id }}" class="ticket-status critical {% if st.id in no_votes_list %}resolved{% endif %}">{{ st.status_vote_no }}</a>

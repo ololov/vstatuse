@@ -15,6 +15,7 @@ import datetime
 from dateutil.relativedelta import *
 import pytils
 import time
+import re
 
 def user_best_cookies(request):
     '''Выбираю куки пользователя'''
@@ -89,6 +90,18 @@ def by_this_date(request, this_date):
     dict2 = def_values(request).copy()
     dict2.update(dict)
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
+
+def this_status(request, id):
+    '''Просмотр статуса'''
+    #b = r'^0+(?P<n>[^0]+)$'
+    b = r'^0+(?P<n>\d+)$'
+    num_id = re.sub(b, '\g<n>', str(id))
+    dict = {'st':VStatus.objects.get(id=num_id),
+            'title':'#'+id,
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_this_status.html', dict2, context_instance=RequestContext(request))
 
 def random_ten(request):
     '''Случайная десятка'''

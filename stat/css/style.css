@@ -764,3 +764,11 @@ a:hover {
     #footer ul {
         width:100%;
     }
+
+.this-ticket{
+                    margin:0; padding:13px 13px 10px;
+                    background:#fffefc;
+                    border:1px solid #e9eae6; border-width:0 0 1px;
+                    position:relative;
+                    overflow:hidden;
+                }

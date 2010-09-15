@@ -4,6 +4,7 @@
 {% block header %}{{ paginate.title }}{% endblock header %}
 
 {% block content %}
+{% load post_extras %}
 {% if  status %}
 {% for st in status %}
 <li class="ticket">
@@ -14,6 +15,7 @@
         <li><small>Добавлен</small><a href="#" title="Просмотреть по дате {{ st.status_date|date:"D d M Y" }}" rel="category tag">{{ st.status_date|date:"D d M Y" }}</a></li>
         {% if  st.status_source %}<li><small><a href="#" title="Просмотреть по ресурсу" rel="category tag">Ресурс</small>{{ st.status_source }}</a></li>{% endif %}
         {% if  st.status_rating != 0 %}<li><small>Рейтинг</small>{{ st.status_rating }}</li>{% endif %}
+        <li><small>Просмотреть/установить</small><a href="/status/{{ st.id|add_zero }}" title="Просмотреть по рейтингу">#{{ st.id|add_zero }}</a></li>
     </ul>
 </li>
 {% endfor %}

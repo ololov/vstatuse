@@ -31,14 +31,12 @@ urlpatterns = patterns('',
     (r'^order-by/best/(?P<ordering>[\-\d\w]+)/(?P<num>[\-\d\w]+)/$', 'status.views.order_best'),
     (r'^order-by/category/(?P<category>[\-\d\w]+)/$', 'status.views.by_category'),
 
-
-
     (r'^order-by/(?P<ordering>[\-\d\w]+)/$', 'status.views.order'),
     (r'^autor/all/$', 'status.views.all_autor'),
     (r'^autor/(?P<autor>[\-\d\w]+)/$', 'status.views.by_autor'),
     (r'^order-by/autor/(?P<autor>[\-\d\w]+)/(?P<yesno>[\-\d\w]+)/$', 'status.views.autor_yes_no'),
     (r'^autor/rating/(?P<rating>[\-\d\w]+)/$', 'status.views.by_autor_rating'),
-
+    (r'^status/(?P<id>[\-\d\w]+)/$', 'status.views.this_status'),
 
 
     (r'^$', 'status.views.index'),
