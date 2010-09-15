@@ -9,6 +9,10 @@ import settings
 from django.contrib import admin
 admin.autodiscover()
 
+from django.conf.urls.defaults import *
+handler404 = 'status.views.custom_404_view'
+handler500 = 'status.views.custom_error_view'
+
 urlpatterns = patterns('',
     # Example:
     # (r'^vstatuse/', include('vstatuse.foo.urls')),
@@ -43,7 +47,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
 )
 
-if settings.DEBUG:
+if settings.DEBUG == False:
     if settings.OS_WER == 'W':
         site_media = 'C:/projects/an/stat/'
     else:

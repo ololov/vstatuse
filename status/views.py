@@ -49,8 +49,9 @@ def def_values(request):
             'category': Category.objects.annotate(num_status=Count('vstatus')).filter(num_status__gt = 0).order_by('-num_status')
         }
 
-def index(request):
+def index(request, error_message=None, message_type=None):
     '''Стартовая страница'''
+    print error_message
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
     try:
@@ -63,7 +64,10 @@ def index(request):
         status = paginator.page(paginator.num_pages)
 
     dict = {'status':status,
+            'current':'sort',
             'title':'по Рейтингу',
+            'message':error_message,
+            'message_type':message_type,
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -97,7 +101,7 @@ def this_status(request, id):
     b = r'^0+(?P<n>\d+)$'
     num_id = re.sub(b, '\g<n>', str(id))
     dict = {'st':VStatus.objects.get(id=num_id),
-            'title':'#'+id,
+            'title':'Статус #'+id.encode("UTF-8"),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -405,3 +409,14 @@ def order_best(request, ordering, num):
     dict2.update(dict)
     return render_to_response('template_status_best.html', dict2, context_instance=RequestContext(request))
 
+def custom_404_view(request):
+    '''404 страница'''
+    error_message = 'Извините. То что вы искали не нашлось, 404 ошибка - страница не найдена.'
+    message_type = 'info'
+    return index(request, error_message, message_type)
+
+def custom_error_view(request):
+    '''500 страница'''
+    error_message = 'Ошибочка! Вы загнали сервер в ступор аж до 500 ошибки.'
+    message_type = 'error'
+    return index(request, error_message, message_type)
