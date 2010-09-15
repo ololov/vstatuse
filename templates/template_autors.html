@@ -14,7 +14,7 @@
         <li><small>Добавил статусов</small><a href="/autor/{{ st.id }}" title="Просмотреть все статусы автора">{{ st.status_count }}</a></li>
         <li><small>Положительных оценок</small><a href="/order-by/autor/{{ st.id }}/yes-votes" title="Просмотреть по положительным оценкам" rel="category tag">{{ st.max_votes_yes }}</a></li>
         <li><small>Отрицательных оценок</small><a href="/order-by/autor/{{ st.id }}/no-votes" title="Просмотреть по отрицательным оценкам" rel="category tag">{{ st.max_votes_no }}</a></li>
-        {% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/rating/{{ st.user_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.user_rating }}</a></li>{% endif %}
+        {% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/autor/rating/{{ st.user_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.user_rating }}</a></li>{% endif %}
 </ul>
 {% endfor %}
 

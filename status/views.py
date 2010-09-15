@@ -14,6 +14,7 @@ from django.template.context import RequestContext
 import datetime
 from dateutil.relativedelta import *
 import pytils
+import time
 
 def user_best_cookies(request):
     '''Выбираю куки пользователя'''
@@ -120,6 +121,27 @@ def by_this_rating(request, rating):
     dict2.update(dict)
     return render_to_response('template_status.html', dict2, context_instance=RequestContext(request))
 
+def by_autor_rating(request, rating):
+    '''По рейтингу автора'''
+    status_list = CustomUser.objects.filter(user_rating=rating.replace("-", "."))
+    paginator = Paginator(status_list, 10)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        status = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        status = paginator.page(paginator.num_pages)
+
+    dict = {'status':status,
+            'current':'sort',
+            'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
+        }
+    dict2 = def_values(request).copy()
+    dict2.update(dict)
+    return render_to_response('template_autors.html', dict2, context_instance=RequestContext(request))
+
 def order(request, ordering):
     '''Первый пункт меню "Сортировка" '''
     order_list = [['date','по Дате','-status_date'], ['rating','по Рейтингу','-status_rating'], ['user-top','по Понравившимся','-status_rating']]
@@ -178,11 +200,12 @@ def by_autor(request, autor):
 def autor_yes_no(request, autor, yesno):
     '''По автору, с положительными или отрицательными голосами'''
     if yesno == 'yes-votes':
-        status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_yes__gt = 0 ).order_by('-status_rating')
+        status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_yes__gt = 0).order_by('-status_rating')
     elif yesno == 'no-votes':
-        status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_no__gt = 0 ).order_by('-status_rating')
+        status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_no__gt = 0).order_by('-status_rating')
     else:
         print "Вернуть ошибку"
+
     this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
     try:

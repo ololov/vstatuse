@@ -37,6 +37,7 @@ urlpatterns = patterns('',
     (r'^autor/all/$', 'status.views.all_autor'),
     (r'^autor/(?P<autor>[\-\d\w]+)/$', 'status.views.by_autor'),
     (r'^order-by/autor/(?P<autor>[\-\d\w]+)/(?P<yesno>[\-\d\w]+)/$', 'status.views.autor_yes_no'),
+    (r'^autor/rating/(?P<rating>[\-\d\w]+)/$', 'status.views.by_autor_rating'),
 
 
 
