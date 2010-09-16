@@ -221,7 +221,7 @@ def autor_yes_no(request, autor, yesno):
     elif yesno == 'no-votes':
         status_list = VStatus.objects.filter(status_status='p', status_author__id=autor, status_vote_no__gt = 0).order_by('-status_rating')
     else:
-        print "Вернуть ошибку"
+        return HttpResponseNotFound('<h1>Page not found</h1>')
 
     this_username = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
@@ -409,14 +409,14 @@ def order_best(request, ordering, num):
     dict2.update(dict)
     return render_to_response('template_status_best.html', dict2, context_instance=RequestContext(request))
 
-def custom_404_view(request):
-    '''404 страница'''
-    error_message = 'Извините. То что вы искали не нашлось, 404 ошибка - страница не найдена.'
-    message_type = 'info'
-    return index(request, error_message, message_type)
-
-def custom_error_view(request):
-    '''500 страница'''
-    error_message = 'Ошибочка! Вы загнали сервер в ступор аж до 500 ошибки.'
-    message_type = 'error'
-    return index(request, error_message, message_type)
+#def custom_404_view(request):
+    #'''404 страница'''
+    #error_message = 'Извините. То что вы искали не нашлось, 404 ошибка - страница не найдена.'
+    #message_type = 'info'
+    #return index(request, error_message, message_type)
+#
+#def custom_error_view(request):
+    #'''500 страница'''
+    #error_message = 'Ошибочка! Вы загнали сервер в ступор аж до 500 ошибки.'
+    #message_type = 'error'
+    #return index(request, error_message, message_type)

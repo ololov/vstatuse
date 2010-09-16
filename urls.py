@@ -9,9 +9,9 @@ import settings
 from django.contrib import admin
 admin.autodiscover()
 
-from django.conf.urls.defaults import *
-handler404 = 'status.views.custom_404_view'
-handler500 = 'status.views.custom_error_view'
+#from django.conf.urls.defaults import *
+#handler404 = 'status.views.custom_404_view'
+#handler500 = 'status.views.custom_error_view'
 
 urlpatterns = patterns('',
     # Example:
