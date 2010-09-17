@@ -10,7 +10,6 @@
     <p>Автор: {{ st.status_author }}</p>
 </div>
 <div id="respond">
-
 <form action="/create-a-ticket/" method="post" name="add-ticket">
 {{form}}
 <p id="ticket-create">
@@ -20,5 +19,3 @@
 </div>
 
 {% endblock content %}
-
-<a href="/vote/yes/{{ st.id }}" class="ticket-status new {% if st.id in yes_votes_list %}resolved{% endif %}"></a> <a href="/vote/no/{{ st.id }}" class="ticket-status critical {% if st.id in no_votes_list %}resolved{% endif %}">{{ st.status_vote_no }}</a>
