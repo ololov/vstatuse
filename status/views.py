@@ -17,6 +17,13 @@ import pytils
 import time
 import re
 
+
+def not_zero(status_id_zero):
+    '''Убираю нолики с статус id'''
+    b = r'^0+(?P<n>\d+)$'
+    return re.sub(b, '\g<n>', str(status_id_zero))
+
+
 def user_best_cookies(request):
     '''Выбираю куки пользователя'''
     try:
@@ -97,10 +104,7 @@ def by_this_date(request, this_date):
 
 def this_status(request, id):
     '''Просмотр статуса'''
-    #b = r'^0+(?P<n>[^0]+)$'
-    b = r'^0+(?P<n>\d+)$'
-    num_id = re.sub(b, '\g<n>', str(id))
-    dict = {'st':VStatus.objects.get(id=num_id),
+    dict = {'st':VStatus.objects.get(id=not_zero(id)),
             'title':'Статус #'+id.encode("UTF-8"),
         }
     dict2 = def_values(request).copy()

@@ -9,7 +9,7 @@
 <li class="ticket">
     <a href="/vote/yes/{{ st.id }}" class="ticket-status new {% if st.id in yes_votes_list %}resolved{% endif %}">{{ st.status_vote_yes }}</a> <a href="/vote/no/{{ st.id }}" class="ticket-status critical {% if st.id in no_votes_list %}resolved{% endif %}">{{ st.status_vote_no }}</a>
     <h2 class="ticket-title">{{ st.status_text }}</h2>
-    <ul class="ticket-meta" style="display:none">
+    <ul class="ticket-meta">
         <li><small>Автор</small><a href="/autor/{{ st.status_author.id }}" title="Просмотреть все статусы автора {{ st.status_author }}">{{ st.status_author }}</a></li>
         <li><small>Добавлен</small><a href="/date/{{ st.status_date }}" title="Просмотреть по дате {{ st.status_date|date:"D d M Y" }}" rel="category tag">{{ st.status_date|date:"D d M Y" }}</a></li>
         {% if  st.status_source %}<li><small><a href="#" title="Просмотреть по ресурсу" rel="category tag">Ресурс</small>{{ st.status_source }}</a></li>{% endif %}

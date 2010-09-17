@@ -1,10 +1,11 @@
 /*
 Theme Name: Quality Control
-Theme URI: http://spencerfinnell.com/quality-control-theme
+Theme URI: http://getqualitycontrol.com
 Description: Zapping Bugs--Like a Boss!
-Version: 0.1
+Version: 0.1.3
 Author: Spencer Finnell
-Author URL: http://spencerfinnell.com
+Author URI: http://spencerfinnell.com
+Tags: white, light, two-columns, flexible-width, custom-colors, custom-background, custom-menu, editor-style, theme-options
 /* --------------------------------------------- */
 
 /**
@@ -25,12 +26,17 @@ img {
 }
 
 /* 01 - TYPOGRAPHY
-/* 848484 ----------------------------------------------*/
+/* ----------------------------------------------*/
 
 #site-title {
     margin:0; padding:0;
     font-size:2.50em; font-weight:bold;
     color:#ffc954;
+}
+
+#access {
+    color:#595959;
+    font:italic 1.00em Georgia, Times, Times New Roman, serif;
 }
 
     #site-title a {
@@ -53,6 +59,7 @@ h2 {
         font-size:1.17em; font-weight:bold; color:#535353;
         margin:0 0 0 10px; padding:0;
         display:inline;
+        cursor: pointer;
     }
 
         .ticket-list .ticket-title a {
@@ -65,7 +72,7 @@ h3 {
 
     #respond h3 {
         margin:0; padding:0;
-        font-size:1.50em; color:#6692b8;
+        font-size:1.17em; color:#6692b8;
         text-shadow:#FFF 0 1px 0;
     }
 
@@ -102,9 +109,6 @@ a:hover {
 
 .tagline, #footer {
     font-weight:bold; font-size:0.92em; color:#c6c6c5;
-}
-.tagline-error{
-    color:red;
 }
 
 /* Sidebar
@@ -177,6 +181,7 @@ a:hover {
 
 .ticket-meta {
     font-weight:bold; color:#898989;
+    display:none;
 }
 
 .ticket-meta a {
@@ -188,7 +193,7 @@ a:hover {
         display:block;
     }
 
-.show-all, .no-results, #message {
+.show-all, .no-results, #message, .manager .updated p {
     color:#d8c49a; font-weight:bold;
 }
 
@@ -197,11 +202,6 @@ a:hover {
 
 .entry, .reply {
     color:#595959; line-height:21px;
-}
-
-#access {
-    color:#595959;
-    font:italic 1.00em Georgia, Times, Times New Roman, serif;
 }
 
 .update-list {
@@ -228,18 +228,24 @@ a:hover {
 
 /* Update Ticket/Create New Ticket */
 
-#respond label {
-    margin:0 8px 0 0;
-    font-weight:bold; color:#8794a0;
+#respond legend {
+    margin:0; padding:0;
+    font-size:1.17em; font-weight:bold; color:#6692b8;
+    text-shadow:#FFF 0 1px 0;
 }
 
-    #respond span, .form-allowed-tags {
-        margin:0 0 0 4px;
-        font-size:0.92em; color:#8794a0;
+#respond label, .subscribe-to-comments {
+    font-weight:bold; color:#87b0c4;
+    text-shadow:#FFF 0 1px 1px;
+    display:inline-block; margin:0 0 3px;
+}
+
+    #respond label em {
+        font-weight:normal; font-style:normal; color:#bed1da;
     }
 
 #respond input, #respond textarea, #respond select {
-    font:1.00em Arial, Helvetica, sans-serif; color:#8794a0;
+    font:1.17em Helvetica, Arial, sans-serif; color:#a0a0a0;
 }
 
 #respond input[type=submit] {
@@ -256,9 +262,12 @@ a:hover {
     cursor:pointer;
 }
 
-#respond .attach-file {
-    color:#8794a0; font-style:italic;
-    margin:15px 0 5px; display:inline-block;
+#comment-subscribe input[type=text] {
+    margin:3px 0 0; width:auto;
+}
+
+.link-to-ticket.resolved {
+    text-decoration:line-through;
 }
 
 /* 02 - MAIN STRUCTURE
@@ -266,10 +275,10 @@ a:hover {
 
 #container {
     margin:0 auto; padding:0;
-    width:960px; height:auto;
+    width:1020px; height:auto;
 }
 
-.alignleft {
+.alignleft, .inline-input {
     float:left !important;
 }
 
@@ -330,7 +339,7 @@ a:hover {
             float:left;
         }
 
-            /* Drop down navigation. Nasty. Старый цвет заголовков 848484 */
+            /* Drop down navigation. Nasty. */
 
             .tabber-navigation {
                 width:100%;
@@ -338,8 +347,8 @@ a:hover {
                 -moz-border-radius:5px 5px 0 0;
                 -wekbit-border-radius:5px 5px 0 0;
                 border-radius:5px 5px 0 0;
-                float:left;
                 position:relative;
+                float:left;
             }
 
             .tabber-navigation.bottom {
@@ -351,6 +360,7 @@ a:hover {
                 .tabber-navigation ul {
                     list-style: none;
                     margin:3px 3px 0; padding:0;
+                    position:relative;
                 }
 
                 .tabber-navigation.bottom ul {
@@ -396,9 +406,8 @@ a:hover {
 
                         .tabber-navigation ul ul.children {
                             margin:0; padding:0;
-                            background:#FFFFFF;
+                            background:#FFF;
                             position:absolute; top:31px; left:0;
-                            float:left;
                             width:180px;
                             z-index:99999;
                             display:none;
@@ -412,7 +421,7 @@ a:hover {
                         }
 
                             .tabber-navigation ul ul.children li {
-                                min-width: 180px;
+                                min-width:180px;
                             }
 
                                 .tabber-navigation ul ul.children a {
@@ -426,7 +435,8 @@ a:hover {
 
                                     .tabber-navigation ul ul.children a span {
                                         margin:0; padding:1px 8px;
-                                        background:#ececec;
+                                        background:#DAE2EA;
+                                        color:#BFBFBF;
                                         display:inline-block;
                                         float:right;
                                         border-radius:2px;
@@ -467,17 +477,16 @@ a:hover {
                     margin:0; padding:13px 13px 10px;
                     background:#fffefc;
                     border:1px solid #e9eae6; border-width:0 0 1px;
-                    position:relative;
                     overflow:hidden;
                 }
 
                 .ticket-list .show-all,
                 .ticket-list .no-results,
-                #message {
+                #message,
+                .manager .updated {
                     margin:0 0 -1px;
                     background:#fff8ea;
                     border:1px solid #ffeec8; border-width:0 0 1px;
-                    position:relative; z-index:1000;
                     background:-webkit-gradient( linear, left bottom, left top, color-stop(0, rgb(255,248,234)), color-stop(1, rgb(255,254,252)));
                     background:-moz-linear-gradient( center bottom, rgb(255,248,234) 0%, rgb(255,254,252) 100% );
                 }
@@ -494,7 +503,7 @@ a:hover {
                         border-radius:3px;
                         -webkit-border-radius:3px;
                         -moz-border-radius:3px;
-                        min-width:10px;
+                        min-width:15px;
                     }
 
                     .ticket-list .ticket-author {
@@ -561,6 +570,10 @@ a:hover {
                     opacity:0.65;
                 }
 
+                .update-list.single {
+                    border:0;
+                }
+
                     .comment .update-list {
                         opacity:1;
                     }
@@ -594,92 +607,92 @@ a:hover {
 
             #respond {
                 margin:-1px; padding:30px 34px;
-                background:#ebeff1;
-                border:1px solid #d6dce1;
+                background:#f2f9fd;
+                border:1px solid #d7e9f2;
                 position:relative; z-index:100;
                 overflow:hidden;
             }
 
-                #message {
+            #respond.manager {
+                margin:0;
+            }
+
+                #message, .manager .updated {
                     margin:0 0 25px; padding:12px 13px 10px;
                     border:1px solid #f2deb1;
                     position:relative; z-index:1000;
                 }
 
-                #respond p {
-                    margin:0; padding:0;
+                #respond fieldset {
+                    margin:0 0 25px; padding:25px 0 0;
+                    border:0;
                 }
 
-                    #respond input, #respond textarea, #respond select {
-                        margin:0; padding:6px 8px 8px;
-                        width:165px;
-                        background:#FFF;
-                        border:1px solid #c8d4dd;
-                        box-shadow:insert 0 3px 0 #f2f2f2;
-                        -webkit-box-shadow:insert 0 3px 0 #f2f2f2;
-                        -mox-box-shadow:insert 0 3px 0 #f2f2f2;
+                #respond #ticket-attachments {
+                    margin-bottom:0;
+                }
+
+                    #respond p {
+                        margin:0 20px 20px;
+                    }
+                    #respond ul {
+                        margin-top:0px;
+                        padding-top:0px;
+                        padding:6px 5px;
+                    }
+                    #respond li {
+                        padding:6px 5px;
                     }
 
-                        #respond textarea {
-                            padding:10px;
-                            width:630px; height:400px;
+                        #respond input[type=text], #respond textarea, #respond select {
+                            margin:0; padding:6px 5px;
+                            width:595px;
+                            border:2px solid #d7e9f2;
+                            display:block;
                         }
 
-                        #respond select {
-                            padding:4px;
-                            width:auto;
+                            #respond textarea {
+                                height:50px;
+                            }
+
+                            #respond select {
+                                width:auto; min-width:150px;
+                            }
+
+                        #respond input:focus, #respond textarea:focus, #respond select:focus {
+                            outline:0;
+                            border-color:#ffc954;
                         }
 
-                    #respond input:focus, #respond textarea:focus {
-                        outline:0;
-                        box-shadow:#FFF 0 1px 0;
-                        -webkit-box-shadow:#FFF 0 1px 0;
-                        -moz-box-shadow:#FFF 0 1px 0;
-                    }
-
-                #respond .ticket-meta-fields {
-                    margin:25px 0; padding:10px 0 10px 20px;
-                    border-left:2px solid #dae0e3;
-                    overflow:hidden;
-                }
-
-                    #respond .ticket_tags {
-                        width:400px;
-                        margin:20px 0 0;
-                    }
-
-                    #respond .ticket_milestone {
-                        margin:0 16px;
-                    }
-
-                .ticket-meta-submit {
-                    margin:-10px; padding:10px;
-                    overflow:hidden;
-                }
-
-                    #respond #submit {
-                        margin:15px 0 0;
-                        float:right;
+                    #respond #ticket-create {
+                        margin:0 -34px -30px; padding:15px 53px;
+                        background:#fafdff;
+                        border-top:1px solid #d7e9f2;
                         overflow:hidden;
                     }
 
-                        .form-submit {
+                    #respond #ticket-create.mult {
+                        margin-bottom:30px;
+                        border-bottom:1px solid #d7e9f2;
+                    }
+
+                        #respond input[type=submit] {
                             float:right;
                         }
 
-                    .form-allowed-tags {
-                        margin:30px 0 0 !important;
-                        float:left;
+                    #respond .subscribe-to-comments {
+                        margin:15px 0 0;
                         width:400px;
+                        float:left;
                     }
 
-                .ticket-attachment {
-                    clear:both;
+            #respond.manager h2 {
+                display:none;
+            }
+
+                #respond.manager .updated p {
+                    margin:0;
                 }
-
-                    #ticket_attachment {
-                        width:auto !important;
-                    }
 
     /* Sidebar
     /* -------------- */
@@ -713,9 +726,6 @@ a:hover {
                         float:right;
                         opacity:0.25;
                     }
-                    .submenu .arss {
-                        float:right;
-                    }
 
                 .submenu .children {
                     margin:5px 0 0 10px; padding:0 0 0 10px;
@@ -730,6 +740,7 @@ a:hover {
                     -moz-border-radius:5px;
                     -wekbit-border-radius:5px;
                     border-radius:5px;
+                    overflow:hidden; /* IE Fix */
                 }
 
                     #searchform div {
@@ -757,6 +768,7 @@ a:hover {
                         background:url(/stat/images/search.png) no-repeat center center;
                         border:0;
                         text-indent:-9999em;
+                        font-size:0; line-height:0; /* IE Fix */
                         float:right;
                     }
 
@@ -779,3 +791,16 @@ a:hover {
                     position:relative;
                     overflow:hidden;
                 }
+
+#respond li {
+    list-style:none;
+    float:left;
+    font-size:1.17em;
+    margin-right:10px;
+}
+#respond ul {
+    padding-bottom:40px;
+    padding-top:0px;
+    margin-top:0px;
+
+}

@@ -1,0 +1,24 @@
+{% extends 'template_base.html' %}
+
+{% block title %}{{ title }}{% endblock title %}
+{% block header %}{{ title }}{% endblock header %}
+
+{% block content %}
+{% load post_extras %}
+<div class="entry inner">
+    <h1>{{ st.status_text }}</h1>
+    <p>Автор: {{ st.status_author }}</p>
+</div>
+<div id="respond">
+
+<form action="/create-a-ticket/" method="post" name="add-ticket">
+{{form}}
+<p id="ticket-create">
+    <input type="submit" name="submit" id="submit" value="Сохранить">
+</p>
+</form>
+</div>
+
+{% endblock content %}
+
+<a href="/vote/yes/{{ st.id }}" class="ticket-status new {% if st.id in yes_votes_list %}resolved{% endif %}"></a> <a href="/vote/no/{{ st.id }}" class="ticket-status critical {% if st.id in no_votes_list %}resolved{% endif %}">{{ st.status_vote_no }}</a>

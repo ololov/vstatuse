@@ -4,7 +4,8 @@
 #
 
 from django import template
-#from post.models import Section, Tag, Post
+from status.models import VStatus
+from customuser.models import CustomUser
 import pytils
 register = template.Library()
 
@@ -29,3 +30,16 @@ def add_zero(value):
     if len_val < 8:
         return '0'*(8-len_val)+str(value)
     return value
+
+@register.filter(name='all_status')
+def all_status(value):
+    return str(value) + '/' + str(VStatus.objects.all().count())
+
+@register.filter(name='all_status_d')
+def all_status_d(value):
+    return VStatus.objects.filter(status_status = 'd').count()
+
+@register.filter(name='this_admin_status_d')
+def this_admin_status_d(value):
+    admin = CustomUser.objects.get(username = value)
+    return VStatus.objects.filter(status_status = 'd').count()

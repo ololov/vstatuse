@@ -60,13 +60,14 @@ def add_base(request):
                         try:
                             add_user = CustomUser.objects.get(username='Yegor Kowalew')
                         except:
-                            add_user = CustomUser(username='Yegor Kowalew', provider='http://vkontakte.ru/', photo='http://cs336.vkontakte.ru/u13175215/c_d5dabbe7.jpg', identity='http://vkontakte.ru/id13175215')
+                            add_user = CustomUser(username='Yegor Kowalew', provider='http://vkontakte.ru/', photo='http://cs336.vkontakte.ru/u13175215/c_d5dabbe7.jpg', identity='http://vkontakte.ru/id13175215', is_superuser = True)
                             add_user.save()
                     elif admin_user == 2:
                         try:
                             add_user = CustomUser.objects.get(username='Артём Ватутин')
                         except:
-                            add_user = CustomUser(username='Артём Ватутин', provider='http://vkontakte.ru/', photo='http://cs9942.vkontakte.ru/u6135314/c_cd457566.jpg', identity='http://vkontakte.ru/id13175215')
+                            add_user = CustomUser(username='Артём Ватутин', provider='http://vkontakte.ru/', photo='http://cs9942.vkontakte.ru/u6135314/c_cd457566.jpg', identity='http://vkontakte.ru/id6135314', is_superuser = True)
+
                             add_user.save()
 
                     elif admin_user == 3:
@@ -77,14 +78,22 @@ def add_base(request):
                             add_user.save()
 
                 if tru_user:
+                    if randint(0, 10) == 5:
+                        svy = randint(0, 10)
+                    else:
+                        svy = 0
+
+                    if randint(0, 10) == 5:
+                        svn = randint(1, 5)
+                    else:
+                        svn = 0
                     new_status = VStatus(
                     status_text = text,
                     status_status = 'p',
-                    #status_source = 'old base',
-                    status_vote_yes = randint(0, 10),
+                    status_vote_yes = svy,
                     status_vote_yes_date = date.fromtimestamp(randint(1230811167.0, 1277985567.0)),
                     status_rating = 0,
-                    status_vote_no = randint(1, 3),
+                    status_vote_no = svn,
                     status_date = ee.split("','")[1],
                     status_author = add_user
                     )
@@ -92,7 +101,6 @@ def add_base(request):
                     new_status = VStatus(
                     status_text = text,
                     status_status = 'p',
-                    #status_source = 'old base',
                     status_vote_yes = 0,
                     status_rating = 0,
                     status_vote_no = 0,

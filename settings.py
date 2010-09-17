@@ -4,7 +4,7 @@
 #
 # Django settings for vstatuse project.
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -30,7 +30,7 @@ LANGUAGE_CODE = 'ru'
 
 SITE_ID = 1
 
-USE_I18N = True
+USE_I18N = False
 
 MEDIA_URL = 'http://192.168.1.13:8000/stat/'
 
@@ -96,7 +96,7 @@ else:
     ROOT_URLCONF = 'vstatuse.urls'
 
 site_dtoolbar = True
-#site_dtoolbar = False
+site_dtoolbar = False
 INTERNAL_IPS = ('192.168.1.13',)
 if site_dtoolbar:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
@@ -113,6 +113,6 @@ if site_dtoolbar:
         'debug_toolbar.panels.logger.LoggingPanel',
     )
     DEBUG_TOOLBAR_CONFIG = {
-        #'EXCLUDE_URLS': ('/admin',), # не работает, но в разработке есть...
+        'EXCLUDE_URLS': ('/admin',), # не работает, но в разработке есть...
         'INTERCEPT_REDIRECTS': False,
     }

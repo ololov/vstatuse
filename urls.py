@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     #(r'^tag/(?P<tag>[\-\d\w]+)/$', 'post.views.tags_list'),
     #(r'^admin-side/$', 'status.views.admin_side'),
     (r'', include('customuser.urls')),
+    (r'', include('vs_admin.urls')),
 
     (r'^add-status/$', 'status.views.add_status'), # надо вынести в другой файл.
     (r'^add-base/$', 'vs_admin.add_db.add_base'),
@@ -47,7 +48,7 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
 )
 
-if settings.DEBUG == False:
+if settings.DEBUG == True:
     if settings.OS_WER == 'W':
         site_media = 'C:/projects/an/stat/'
     else:

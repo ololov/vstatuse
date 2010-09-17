@@ -9,12 +9,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db.models import get_model
 
 class CustomUserModelBackend(ModelBackend):
-    def authenticate(self, username=None, provider=None):
+    def authenticate(self, identity=None):
         try:
-            user = self.user_class.objects.get(username=username)
-            #if user.check_password(provider):
-                #return user
-            if user.provider == provider:
+            user = self.user_class.objects.get(identity=identity)
+            if user.identity == identity:
                 return user
         except self.user_class.DoesNotExist:
             return None

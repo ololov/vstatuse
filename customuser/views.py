@@ -60,9 +60,8 @@ def registration_confirm(request):
         print this_user['first_name'] + ' ' + this_user['last_name']
         this_user['username'] = this_user['first_name'] + ' ' + this_user['last_name']
         #new_user = CustomUser(**this_user)
-
-        user = authenticate(username = this_user['username'], provider = this_user['provider'])
-        print user
+        print this_user
+        user = authenticate(identity = this_user['identity'])
         if user is not None:
             if user.is_active:
                 login(request, user)
@@ -106,7 +105,6 @@ def contact_answer(request):
         form = AuthConfirmation(request.POST)
         if form.is_valid():
             us = CustomUser.objects.get(username = form.cleaned_data['username'])
-            #us.nickname = form.cleaned_data['nickname']
             us.email = form.cleaned_data['email']
             us.is_active = True
             us.is_authenticated = True
@@ -118,12 +116,10 @@ def contact_answer(request):
                     login(request, user)
                     user.is_authenticated = True
                     return HttpResponseRedirect('/')
-            #return HttpResponseRedirect('/')
 
         else:
             default_data = {}
             default_data['username'] = form.cleaned_data['username']
-            #default_data['nickname'] = form.cleaned_data['nickname']
             default_data['provider'] = form.cleaned_data['provider']
             default_data['email'] = form.cleaned_data['email']
             from django.template import Context, Template

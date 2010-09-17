@@ -3,15 +3,6 @@
 {% block title %}{{ title }}{% endblock title %}
 
 {% block content %}
-<!-- <li class="ticket">
-<form method="post" action="/add-status/">
-<h2>Текст статуса:</h2>
-<textarea name="status_source" cols="50" rows="3"></textarea>
-<h2>Ресурс:</h2>
-<input name="status_text" type="text" /><br />
-<p><input type="submit"></p>
- </form>
-</li> -->
 {% if form.errors %}
 <div class="form-error">
     <ul>
@@ -23,8 +14,10 @@
     </ul>
 </div>
 {% endif %}
+<div id="respond">
 <form method="post" action="/add-status/">{% csrf_token %}
     {{ form }}
     <p><input type="submit"></p>
 </form>
+</div>
 {% endblock content %}
