@@ -58,7 +58,7 @@ def def_values(request):
 
 def index(request, error_message=None, message_type=None):
     '''Стартовая страница'''
-    print error_message
+    #print error_message
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
     try:
@@ -376,9 +376,9 @@ def order_best(request, ordering, num):
     num = int(num)
     if ordering == 'day':
         date_start = start_day - relativedelta(days=num)
-        print date_start
+        #print date_start
         status_list = VStatus.objects.filter(status_status='p', status_vote_yes_date__month=date_start.month, status_vote_yes_date__year=date_start.year, status_vote_yes_date__day=date_start.day).order_by('-status_rating')[:10]
-        print status_list
+        #print status_list
         start = pytils.dt.ru_strftime(u"за %d %B %Y", date_start, inflected=True)
         date_start = start_day - relativedelta(days=num+1)
         prev = pytils.dt.ru_strftime(u"за %d %B", date_start, inflected=True)

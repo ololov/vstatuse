@@ -56,20 +56,11 @@ class VStatus(models.Model):
     status_vote_yes_date = models.DateField(verbose_name=u'Дата последнего положительного голоса', null=True,blank=True)
     status_vote_no = models.IntegerField(verbose_name='Голосов "Против"', blank=True, null=True, default=0)
     status_date = models.DateField(auto_now=True, verbose_name=u'Дата публикации')
-    status_author = models.ForeignKey(User, verbose_name=u'Автор')
+    status_author = models.ForeignKey(User, verbose_name=u'Автор', blank=True, null=True)
     status_category = models.ManyToManyField(Category, verbose_name=u'Категории', blank=True, null=True)
 
     def __unicode__(self):
         return self.status_text
-
-    #def get_absolute_url(self):
-        #return "/XXXXX/%s/" % self.slug
-
-    #def get_edit_url(self):
-        #return "/admin/XXXXX/YYYYYY/%d/" % self.id
-
-    #def get_delete_url(self):
-        #return "/admin/XXXXXX/YYYYY/%d/delete/" % self.id
 
     class Meta:
         verbose_name = "статус"

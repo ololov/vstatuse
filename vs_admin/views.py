@@ -19,7 +19,7 @@ def alternate_editor(request):
             if form.is_valid():
                 print 'то что надо'
             else:
-                print 'не то что надо'
+                #print 'не то что надо'
                 form = EditorForm().as_p()
                 dict = {'st':edit_status,
                         'form': form,

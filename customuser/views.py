@@ -57,10 +57,10 @@ def registration_confirm(request):
 
         if this_user['nickname'] == '':
             this_user['nickname'] = this_user['first_name'] + ' ' + this_user['last_name']
-        print this_user['first_name'] + ' ' + this_user['last_name']
+        #print this_user['first_name'] + ' ' + this_user['last_name']
         this_user['username'] = this_user['first_name'] + ' ' + this_user['last_name']
         #new_user = CustomUser(**this_user)
-        print this_user
+        #print this_user
         user = authenticate(identity = this_user['identity'])
         if user is not None:
             if user.is_active:
@@ -110,7 +110,7 @@ def contact_answer(request):
             us.is_authenticated = True
             us.save()
             user = authenticate(username = form.cleaned_data['username'], provider = form.cleaned_data['provider'])
-            print user
+            #print user
             if user is not None:
                 if user.is_active:
                     login(request, user)

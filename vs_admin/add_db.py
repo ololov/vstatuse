@@ -44,73 +44,25 @@ def add_base(request):
                 text = re.sub(b, "\g<xx> \g<yy>",  text)
                 st+=1
                 st_add = unescape(ee.split("','")[5])
-                if st_add != 'admin':
-                    tru_user = False
-                    try:
-                        add_user = CustomUser.objects.get(username=st_add) ###
-                    except:
-                        test_mail = st_add + '@testuser.com'
-                        test_pass = st_add + 'pass'
-                        add_user = CustomUser(username=st_add, provider='http://vkontakte.ru/', photo='', identity='')
-                        add_user.save()
-                else:
-                    tru_user = True
-                    admin_user = randint(1,3)
-                    if admin_user == 1:
-                        try:
-                            add_user = CustomUser.objects.get(username='Yegor Kowalew')
-                        except:
-                            add_user = CustomUser(username='Yegor Kowalew', provider='http://vkontakte.ru/', photo='http://cs336.vkontakte.ru/u13175215/c_d5dabbe7.jpg', identity='http://vkontakte.ru/id13175215', is_superuser = True)
-                            add_user.save()
-                    elif admin_user == 2:
-                        try:
-                            add_user = CustomUser.objects.get(username='Артём Ватутин')
-                        except:
-                            add_user = CustomUser(username='Артём Ватутин', provider='http://vkontakte.ru/', photo='http://cs9942.vkontakte.ru/u6135314/c_cd457566.jpg', identity='http://vkontakte.ru/id6135314', is_superuser = True)
+                #try:
+                    #add_user = CustomUser.objects.get(username=st_add) ###
+                #except:
+                    #test_mail = st_add + '@testuser.com'
+                    #test_pass = st_add + 'pass'
+                    #add_user = CustomUser(username=st_add, provider='http://vkontakte.ru/', photo='', identity='')
+                    #add_user.save()
 
-                            add_user.save()
-
-                    elif admin_user == 3:
-                        try:
-                            add_user = CustomUser.objects.get(username='LaDioS')
-                        except:
-                            add_user = CustomUser(username='LaDioS', provider='http://vkontakte.ru/', photo='http://cs4982.vkontakte.ru/u13463936/c_a17e9382.jpg', identity='http://vkontakte.ru/id1300000')
-                            add_user.save()
-
-                if tru_user:
-                    if randint(0, 10) == 5:
-                        svy = randint(0, 10)
-                    else:
-                        svy = 0
-
-                    if randint(0, 10) == 5:
-                        svn = randint(1, 5)
-                    else:
-                        svn = 0
-                    new_status = VStatus(
-                    status_text = text,
-                    status_status = 'p',
-                    status_vote_yes = svy,
-                    status_vote_yes_date = date.fromtimestamp(randint(1230811167.0, 1277985567.0)),
-                    status_rating = 0,
-                    status_vote_no = svn,
-                    status_date = ee.split("','")[1],
-                    status_author = add_user
-                    )
-                else:
-                    new_status = VStatus(
+                new_status = VStatus(
                     status_text = text,
                     status_status = 'p',
                     status_vote_yes = 0,
                     status_rating = 0,
                     status_vote_no = 0,
                     status_date = ee.split("','")[1],
-                    status_author = add_user
+                    #status_author = add_user
                     )
                 new_status.save()
                 report_text += "№:" + '<b>' + str(st) + '</b>' + ' ' + text + '<br>'
-                print  "№:", st, ' ', add_user.username, ' ', text
-
     return HttpResponse(report_text)
 
 def set_ratings(request):
