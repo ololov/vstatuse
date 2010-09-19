@@ -30,7 +30,7 @@ LANGUAGE_CODE = 'ru'
 
 SITE_ID = 1
 
-USE_I18N = False
+USE_I18N = True
 
 MEDIA_URL = 'http://192.168.1.13:8000/stat/'
 
