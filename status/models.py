@@ -62,6 +62,10 @@ class VStatus(models.Model):
     def __unicode__(self):
         return self.status_text
 
+    def get_edit_url(self):
+        return "/vs-admin/this/%d/" % self.id
+
+
     class Meta:
         verbose_name = "статус"
         verbose_name_plural = "статусы"

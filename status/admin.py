@@ -6,20 +6,15 @@ from status.models import *
 from django.contrib import admin
 
 
-#def make_published(modeladmin, request, queryset):
-    #queryset.update(post_status='p')
-#
-#make_published.short_description = u"Сделать опубликованной"
-#
-#def make_unpublished(modeladmin, request, queryset):
-    #queryset.update(post_status='d')
-#
-#make_unpublished.short_description = u"Сделать черновиком"
+def make_published(modeladmin, request, queryset):
+    queryset.update(status_status='p')
 
+make_published.short_description = u"Сделать опубликованным"
+#
+def make_unpublished(modeladmin, request, queryset):
+    queryset.update(status_status='d')
 
-#class TextInline(admin.StackedInline):
-    #model = TextBlock
-    #extra = 1
+make_unpublished.short_description = u"Сделать неопубликованным"
 
 class VStatusAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -29,6 +24,7 @@ class VStatusAdmin(admin.ModelAdmin):
     list_display = ('status_text', 'status_status', 'status_rating')
     search_fields = ['status_text']
     list_filter = ('status_status', 'status_rating', 'status_author')
+    actions = [make_published, make_unpublished]
 
 class RandomTextAdmin(admin.ModelAdmin):
     fieldsets = [

@@ -96,7 +96,7 @@ else:
     ROOT_URLCONF = 'vstatuse.urls'
 
 site_dtoolbar = True
-site_dtoolbar = False
+#site_dtoolbar = False
 INTERNAL_IPS = ('192.168.1.13',)
 if site_dtoolbar:
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)

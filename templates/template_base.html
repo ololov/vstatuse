@@ -27,10 +27,10 @@
     </ul>
 </div>
 <div id="logged-in">{% if user.is_superuser %}
-<a href="/vs-admin/alternate-editor">Постатусный редактор</a> <a href="">Пересчитать рейтинги</a>
+<a href="/vs-admin/all/start">Постатусный редактор</a> <a href="">Пересчитать рейтинги</a>
  {% else %}<a href="#">Новости</a> <a href="#">Небольшая справка</a>{% endif %}
     {% if user.is_authenticated %}
-    <a href="#" title="Просмотр профиля">{{user.username}}</a> <a href="/logout">Выйти</a>{% else %}
+    <a href="#" title="Просмотр профиля">{{user.first_name}} {{user.last_name}}</a> <a href="/logout">Выйти</a>{% else %}
 <a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&providers_set=vkontakte" class="loginza">Войти через вконтакт</a>
     {% endif %}
 </div>
@@ -71,7 +71,15 @@
                             <li {% if current = 'autor' %}class="current-tab"{% endif %}>
                                 <a href="#">Авторы</a>
                                 <ul class="children">
-                                    {% for user in all_user %}<li><a href="/autor/{{ user.id  }}" title="Статусы пользователя {{ user.username }}">{{ user.username  }}<span>{{ user.status_count }}</span></a></li>{% endfor %}
+{% for user in all_user %}
+    {% if user.first_name %}
+        <li><a href="/autor/{{ user.id  }}" title="Статусы пользователя {{ user.username }}">{{ user.first_name  }} {{ user.last_name  }}
+        {% if user.status_count %}
+            <span>{{ user.status_count }}</span>
+        {% endif %}</a></li>
+    {% endif %}
+{% endfor %}
+
                                         <li><a href="/autor/all" title="Просмотреть всех авторов">Все <span>{{ all_user_count }}</span></a> </li>
                                </ul>
                             </li>
@@ -112,7 +120,12 @@
 <li id="recent-comments-2" class="widget-container widget_recent_comments">
     <h3 class="widget-title">Лучшие авторы</h3>
     <ul>{% for user in all_user %}
-        <li><a href="/autor/{{ user.id  }}" title="">{{ user.username  }}</a><a href="/autor/{{ user.id  }}" class="rss"><b>({{ user.status_count }})</b></a></li>{% endfor %}
+    {% if user.last_name %}
+        <li><a href="/autor/{{ user.id  }}" title="">{{ user.first_name  }} {{ user.last_name  }}</a>
+            {% if user.status_count %}
+                <a href="/autor/{{ user.id  }}" class="rss"><b>({{ user.status_count }})</b></a>
+            {% endif %}</li>
+    {% endif %}{% endfor %}
     </ul>
 </li>
 {% if yes_votes_list %}

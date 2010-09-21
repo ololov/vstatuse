@@ -4,13 +4,27 @@
 {% block header %}{{ title }}{% endblock header %}
 
 {% block content %}
+
 {% load post_extras %}
+{% if form.errors %}
+<div class="form-error">
+    <ul>
+    {% for field in form %}
+        {% if field.errors %}
+            <li>{{ field.label }}: {{ field.errors|striptags }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
 <div class="entry inner">
     <h1>{{ st.status_text }}</h1>
-    <p>Автор: {{ st.status_author }}</p>
+    <p><b>Автор:</b> {{ st.status_author }}</p>
+    <p><b>Голосов "За":</b> {{ st.status_vote_yes }}</p>
+    <p><b>Голосов "Против":</b> {{ st.status_vote_no }}</p>
 </div>
 <div id="respond">
-<form action="/create-a-ticket/" method="post" name="add-ticket">
+<form action="/vs-admin/{{ edit_link }}/{{ st.id }}/" method="post" name="add-ticket">{% csrf_token %}
 {{form}}
 <p id="ticket-create">
     <input type="submit" name="submit" id="submit" value="Сохранить">

@@ -9,7 +9,7 @@
 <li class="ticket">
     <p class="ticket-author">зарегистрирован  <a href="#">{{ st.date_joined|date:"D d M Y" }}</a></p>
     {% if st.photo %}<a href="{{ st.identity }}"><img src="{{ st.photo }}" title="Перейти на страницу пользователя"/></a>{% endif %}
-    <h2 class="ticket-title">{{ st.username }}</h2>
+    <h2 class="ticket-title">{{ st.first_name  }} {{ st.last_name  }}</h2>
     <ul class="ticket-meta">
         <li><small>Добавил статусов</small><a href="/autor/{{ st.id }}" title="Просмотреть все статусы автора">{{ st.status_count }}</a></li>
         <li><small>Положительных оценок</small><a href="/order-by/autor/{{ st.id }}/yes-votes" title="Просмотреть по положительным оценкам" rel="category tag">{{ st.max_votes_yes }}</a></li>
