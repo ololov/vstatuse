@@ -43,9 +43,11 @@ def all(request, status_id):
     if request.user.is_superuser:
         if request.method == 'POST':
             edit_status = VStatus.objects.get(id=status_id)
-            form = EditorForm(instance=edit_status)
+            form = EditorForm(request.POST, instance=edit_status)
+            all_status_count_p = VStatus.objects.filter(status_status='p').count()
             if form.is_valid():
                 obj = form.save(commit=False)
+                obj.status_rating = round(((obj.status_vote_yes+obj.status_vote_no)*100.)/all_status_count_p, 2)
                 obj.save()
                 form.save_m2m()
                 return return_form(request)
@@ -72,8 +74,10 @@ def this(request, status_id):
         if request.method == 'POST':
             edit_status = VStatus.objects.get(id=status_id)
             form = EditorForm(request.POST, instance=edit_status)
+            all_status_count_p = VStatus.objects.filter(status_status='p').count()
             if form.is_valid():
                 obj = form.save(commit=False)
+                obj.status_rating = round(((obj.status_vote_yes+obj.status_vote_no)*100.)/all_status_count_p, 2)
                 obj.save()
                 form.save_m2m()
                 return HttpResponseRedirect('/')

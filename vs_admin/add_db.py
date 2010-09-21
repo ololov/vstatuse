@@ -98,7 +98,7 @@ def set_ratings(request):
         this_user.status_count = user_status.count()
         this_user.save()
 
-        print votes_yes, votes_no, autor_rating
+        #print votes_yes, votes_no, autor_rating
         report_text2 += '<b>' +  this_user.username.encode("UTF-8") + ':</b> За: ' + str(votes_yes) + ' Против: ' + str(votes_no) + ' Рейтинг: ' + str(autor_rating) +'<br>'
 
     return HttpResponse(report_text2 + report_text)
