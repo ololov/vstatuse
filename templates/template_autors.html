@@ -3,8 +3,9 @@
 
 {% block title %}{{ title }}{% endblock title %}
 
-{% block content %}
+{% block description %}{{ description }}{% endblock description %}
 
+{% block content %}
 {% for st in status.object_list %}
 <li class="ticket">
     <p class="ticket-author">зарегистрирован  <a href="#">{{ st.date_joined|date:"D d M Y" }}</a></p>

@@ -1,7 +1,10 @@
 {% extends 'template_base.html' %}
 
-{% block title %}{{ title }}{% endblock title %}
-{% block header %}{{ title }}{% endblock header %}
+{% block title %}{{ title }}{% if status.has_other_pages %} &rarr; Страница {{ status.number }}{% endif %}
+{% endblock title %}{% block header %} {{ title }} {% if status.has_other_pages %} <span>&rarr;</span> Страница {{ status.number }}{% endif %}
+ {% endblock header %}
+
+{% block description %}{{ description }}{% endblock description %}
 
 {% block content %}
 {% load post_extras %}
@@ -11,7 +14,7 @@
     <h2 class="ticket-title">{{ st.status_text }}</h2>
     <ul class="ticket-meta">
         {% if st.status_author %}
-            <li><small>Автор</small><a href="/autor/{{ st.status_author.id }}" title="Просмотреть все статусы автора {{ st.status_author }}">{{ st.status_author }}</a></li>
+            <li><small>Автор</small><a href="/autor/{{ st.status_author.id }}" title="Просмотреть все статусы автора {{ st.status_author.first_name }} {{ st.status_author.last_name }}">{{ st.status_author.first_name }} {{ st.status_author.last_name }}</a></li>
         {% endif %}
         <li><small>Добавлен</small><a href="/date/{{ st.status_date }}" title="Просмотреть по дате {{ st.status_date|date:"D d M Y" }}" rel="category tag">{{ st.status_date|date:"D d M Y" }}</a></li>
         {% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/rating/{{ st.status_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.status_rating }}</a></li>{% endif %}

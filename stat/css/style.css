@@ -804,3 +804,10 @@ a:hover {
     margin-top:0px;
 
 }
+
+.ticket-status.critical {background:#ff5454; color:#FFFFFF;}
+.ticket-status.hold {background:#bcbcbc; color:#FFFFFF;}
+.ticket-status.new {background:#93ce11; color:#FFFFFF;}
+.ticket-status.open {background:#df6800; color:#FFFFFF;}
+.ticket-status.resolved {background:#DAE2E8; color:#45688E;}
+.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}

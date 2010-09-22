@@ -54,7 +54,7 @@ def add_base(request):
 
                 new_status = VStatus(
                     status_text = text,
-                    status_status = 'p',
+                    status_status = 'd',
                     status_vote_yes = 0,
                     status_rating = 0,
                     status_vote_no = 0,
@@ -62,7 +62,7 @@ def add_base(request):
                     #status_author = add_user
                     )
                 new_status.save()
-                report_text += "№:" + '<b>' + str(st) + '</b>' + ' ' + text + '<br>'
+    report_text += '<b>' + str(st) + '</b><br>'
     return HttpResponse(report_text)
 
 def set_ratings(request):

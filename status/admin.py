@@ -35,7 +35,7 @@ class RandomTextAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     fieldsets = [
     ('Основное',               {'fields': [('category_name', 'category_slug')]}),
-    ('Дополнительно',          {'classes': ('collapse',), 'fields': ['category_status_count']}),
+    ('Дополнительно',          {'classes': ('collapse',), 'fields': ['category_status_count', 'category_description']}),
     ]
     list_display = ('category_name', 'category_slug', 'category_status_count')
 

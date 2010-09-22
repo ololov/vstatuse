@@ -30,6 +30,7 @@ class Category(models.Model):
     category_name = models.CharField(max_length=50, verbose_name=u'Название')
     category_slug = models.CharField(max_length=50, verbose_name=u'Служебное поле', unique=True, blank=True)
     category_status_count = models.IntegerField(verbose_name=u'Количество статусов в категории', blank=True, null=True, default=0)
+    category_description = models.CharField(max_length=100, verbose_name=u'Описание', blank=True, null=True)
 
     def save(self):
         if not self.category_slug:

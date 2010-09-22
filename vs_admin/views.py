@@ -28,7 +28,6 @@ def return_form(request):
         message_type = 'info'
         return index(request, error_message, message_type)
 
-
 def all(request, status_id):
     c = {}
     c.update(csrf(request))
@@ -47,7 +46,10 @@ def all(request, status_id):
             all_status_count_p = VStatus.objects.filter(status_status='p').count()
             if form.is_valid():
                 obj = form.save(commit=False)
-                obj.status_rating = round(((obj.status_vote_yes+obj.status_vote_no)*100.)/all_status_count_p, 2)
+                try:
+                    obj.status_rating = round(((obj.status_vote_yes+obj.status_vote_no)*100.)/all_status_count_p, 2)
+                except:
+                    obj.status_rating = 0.0
                 obj.save()
                 form.save_m2m()
                 return return_form(request)
@@ -77,7 +79,10 @@ def this(request, status_id):
             all_status_count_p = VStatus.objects.filter(status_status='p').count()
             if form.is_valid():
                 obj = form.save(commit=False)
-                obj.status_rating = round(((obj.status_vote_yes+obj.status_vote_no)*100.)/all_status_count_p, 2)
+                try:
+                    obj.status_rating = round(((obj.status_vote_yes+obj.status_vote_no)*100.)/all_status_count_p, 2)
+                except:
+                    obj.status_rating = 0.0
                 obj.save()
                 form.save_m2m()
                 return HttpResponseRedirect('/')

@@ -2,8 +2,6 @@
 #
 #       Copyright 2010 Yegor Kowalew <kw@sdesign.com.ua>
 #
-# Для работы этой вьюшки требуются модули pytils, dateutil
-
 
 from django.db.models import Count
 from django.shortcuts import HttpResponse, render_to_response, HttpResponseRedirect
@@ -22,7 +20,6 @@ def not_zero(status_id_zero):
     '''Убираю нолики с статус id'''
     b = r'^0+(?P<n>\d+)$'
     return re.sub(b, '\g<n>', str(status_id_zero))
-
 
 def user_best_cookies(request):
     '''Выбираю куки пользователя'''
@@ -58,7 +55,6 @@ def def_values(request):
 
 def index(request, error_message=None, message_type=None):
     '''Стартовая страница'''
-    #print error_message
     status_list = VStatus.objects.filter(status_status='p').order_by('-status_rating')
     paginator = Paginator(status_list, 10)
     try:
@@ -69,12 +65,15 @@ def index(request, error_message=None, message_type=None):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-
+    category_for_desc = ''
+    for i in Category.objects.all():
+        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':status,
             'current':'sort',
             'title':'по Рейтингу',
             'message':error_message,
             'message_type':message_type,
+            'description': 'Cтатусы для вконтакте ' + category_for_desc.encode("UTF-8")
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -93,10 +92,13 @@ def by_this_date(request, this_date):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-
+    category_for_desc = ''
+    for i in Category.objects.all():
+        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':status,
             'current':'sort',
             'title':pytils.dt.ru_strftime(u"за %d %B %Y", datetime.datetime.fromtimestamp(time.mktime(time.strptime(this_date, "%Y-%m-%d"))), inflected=True),
+            'description': 'Cтатусы для вконтакте отсортированные по дате ' + category_for_desc.encode("UTF-8"),
     }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -113,9 +115,13 @@ def this_status(request, id):
 
 def random_ten(request):
     '''Случайная десятка'''
+    category_for_desc = ''
+    for i in Category.objects.all():
+        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':VStatus.objects.order_by('?')[:10],
             'current':'sort',
             'title':'Случайная десятка',
+            'description': 'Случайная десятка статусов для вконтакте ' + category_for_desc.encode("UTF-8"),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -133,10 +139,13 @@ def by_this_rating(request, rating):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-
+    category_for_desc = ''
+    for i in Category.objects.all():
+        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':status,
             'current':'sort',
             'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
+            'description': 'Статусы с рейтингом ' + rating.replace("-", ".").encode("UTF-8") + ' ' + category_for_desc.encode("UTF-8"),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -158,6 +167,7 @@ def by_autor_rating(request, rating):
     dict = {'status':status,
             'current':'sort',
             'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
+            'description': 'Просмотр авторов с рейтингом '+rating.replace("-", ".").encode("UTF-8"),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -192,6 +202,7 @@ def order(request, ordering):
     dict = {'status':status,
             'title':ordering[1],
             'current':'sort',
+            'description': 'Просмотр статусов для вконтакте, отсортированных ' + ordering[1]
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -200,7 +211,7 @@ def order(request, ordering):
 def by_autor(request, autor):
     '''По автору'''
     status_list = VStatus.objects.filter(status_status='p', status_author__id=autor).order_by('-status_rating')
-    this_username = CustomUser.objects.get(id = autor).username
+    this_user = CustomUser.objects.get(id = autor)
     paginator = Paginator(status_list, 10)
     try:
         page = int(request.GET.get('page', '1'))
@@ -211,8 +222,11 @@ def by_autor(request, autor):
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
     dict = {'status':status,
-            'title':'Автор ' + this_username.encode("UTF-8") + ', статусов ' + str(status_list.count()),
+            'title':'Автор ' + this_user.first_name.encode("UTF-8") + ', статусов ' + str(status_list.count()),
             'current':'autor',
+            'description': 'Просмотр статусов для вконтакте автора: ' + this_user.first_name.encode("UTF-8")
+                            +' '+ this_user.last_name.encode("UTF-8")
+                            +', Статусов:' + str(status_list.count()),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -227,7 +241,7 @@ def autor_yes_no(request, autor, yesno):
     else:
         return HttpResponseNotFound('<h1>Page not found</h1>')
 
-    this_username = CustomUser.objects.get(id = autor).username
+    user = CustomUser.objects.get(id = autor).username
     paginator = Paginator(status_list, 10)
     try:
         page = int(request.GET.get('page', '1'))
@@ -240,6 +254,10 @@ def autor_yes_no(request, autor, yesno):
     dict = {'status':status,
             'title':'Автор ' + this_username.encode("UTF-8") + ', статусов ' + str(status_list.count()),
             'current':'autor',
+            'description': 'Cтатусы для вконтакте, Автор: '
+                            + user.first_name.encode("UTF-8")
+                            + ' ' + user.last_name.encode("UTF-8")
+                            + ', статусов ' + str(status_list.count()),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -259,8 +277,9 @@ def by_category(request, category):
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
     dict = {'status':status,
-            'title':'Категория '+ category.category_name.encode("UTF-8"),
+            'title':category.category_name.encode("UTF-8"),
             'current':'category',
+            'description': category.category_description.encode("UTF-8")
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -281,6 +300,7 @@ def all_autor(request):
     dict = {'status':status,
             'title':'Все пользователи',
             'current':'autor',
+            'description': 'Авторов: '+ str(user_list.count()),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -309,6 +329,7 @@ def add_status(request):
         else:
             dict = {'title':'Добавление статуса',
                 'form': form,
+                'description': 'Страница добавления нового статуса для вконтакте',
                 }
             dict2 = def_values(request).copy()
             dict2.update(dict)
@@ -321,6 +342,7 @@ def add_status(request):
 
     dict = {'title':'Добавление статуса',
             'form': form,
+            'description': 'Страница добавления нового статуса для вконтакте',
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -407,20 +429,8 @@ def order_best(request, ordering, num):
 
     dict = {'status':status_list,
             'current':'best',
-            'paginate':paginate
+            'paginate':paginate,
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
     return render_to_response('template_status_best.html', dict2, context_instance=RequestContext(request))
-
-#def custom_404_view(request):
-    #'''404 страница'''
-    #error_message = 'Извините. То что вы искали не нашлось, 404 ошибка - страница не найдена.'
-    #message_type = 'info'
-    #return index(request, error_message, message_type)
-#
-#def custom_error_view(request):
-    #'''500 страница'''
-    #error_message = 'Ошибочка! Вы загнали сервер в ступор аж до 500 ошибки.'
-    #message_type = 'error'
-    #return index(request, error_message, message_type)
