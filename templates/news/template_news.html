@@ -1,0 +1,34 @@
+{% extends 'template_base.html' %}
+
+{% block title %}{{ title }}{% if status.has_other_pages %} &rarr; Страница {{ status.number }}{% endif %}
+{% endblock title %}{% block header %} {{ title }} {% if status.has_other_pages %} <span>&rarr;</span> Страница {{ status.number }}{% endif %}
+ {% endblock header %}
+
+{% block description %}{{ description }}{% endblock description %}
+
+{% block content %}
+{% load post_extras %}
+{% for st in status.object_list %}
+<li class="ticket">
+    <h2 class="ticket-title">{{ st.header }}</h2>
+    <ul class="ticket-meta">
+        <p>{{ st.body }}</p>
+    </ul>
+</li>
+{% endfor %}
+
+{% endblock content %}
+
+{% block nav %}
+{% if status.has_other_pages %}
+<ul>
+{% if status.has_previous %}
+    <li><a href="?page={{ status.previous_page_number }}">Предыдущие</a></li>
+{% endif %}
+
+{% if status.has_next %}
+    <li class="alignright"><a href="?page={{ status.next_page_number }}">Следующие</a></li>
+{% endif %}
+</ul>
+{% endif %}
+{% endblock nav %}

@@ -1,0 +1,52 @@
+{% extends 'template_base.html' %}
+
+{% block title %}{{ title }}{% endblock title %}
+{% block header %}{{ title }}{% endblock header %}
+
+{% block content %}
+
+{% load post_extras %}
+{% if form.errors %}
+<div class="form-error">
+    <ul>
+    {% for field in form %}
+        {% if field.errors %}
+            <li>{{ field.label }}: {{ field.errors|striptags }}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<li class="ticket">
+    <h2 class="ticket-title">Как правильно добавить категорию?</h2>
+    <ul class="ticket-meta">
+        <li>
+            <ul>
+                <li>Заходим на <a href="http://wordstat.yandex.ru/" target="_blank">Яндекс.Директ</a>;</li><br/>
+                <li>В поле пишем "статусы в контакте";</li><br/>
+                <li>Ищем похожее на нашу будущую категорию название. Чем выше в рейтинге будет наше название - тем лучше;</li><br/>
+                <li>Вводим это название в поле "Название";</li><br/>
+                <li>На <a href="http://wordstat.yandex.ru/" target="_blank">Яндекс.Директ</a> нажимаем на нашу будущую категорию и смотрим похожие запросы;</li><br/>
+                <li>Добавляем эти похожие запросы в поле "Описание".</li>
+            </ul>
+        </li>
+    </ul>
+</li>
+<li class="ticket">
+    <h2 class="ticket-title">Добавил категорию, а она не отображается!</h2>
+    <ul class="ticket-meta">
+        <li>
+            Она не отображается потому, что в ней еще нет статусов. Когда ты добавишь любой статус и укажешь эту категорию, то она обязательно появится.
+        </li>
+    </ul>
+</li>
+<div id="respond">
+<form action="/vs-admin/category/add/" method="post" name="add-ticket">{% csrf_token %}
+{{form}}
+<p id="ticket-create">
+    <input type="submit" name="submit" id="submit" value="Добавить">
+</p>
+</form>
+</div>
+
+{% endblock content %}

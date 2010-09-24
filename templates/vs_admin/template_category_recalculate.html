@@ -1,0 +1,18 @@
+{% extends 'template_base.html' %}
+
+{% block title %}{{ title }}{% endblock title %}
+{% block header %}{{ title }}{% endblock header %}
+
+{% block description %}{{ description }}{% endblock description %}
+
+{% block content %}
+{% load post_extras %}
+{% for st in status %}
+<li class="ticket">
+    <a href="" class="ticket-status new {% if st.id in yes_votes_list %}resolved{% endif %}">{{ st.old }}</a>
+    <a href="" class="ticket-status critical {% if st.id in no_votes_list %}resolved{% endif %}">{{ st.new }}</a>
+    <h2 class="ticket-title">{{ st.name }}</h2>
+</li>
+{% endfor %}
+
+{% endblock content %}
