@@ -9,12 +9,8 @@ from status.models import VStatus, RandomText, Category
 from customuser.models import CustomUser
 from django.core.paginator import Paginator
 from django.template.context import RequestContext
-import datetime
 from dateutil.relativedelta import *
-import pytils
-import time
-import re
-
+import pytils, time, re, datetime
 
 def not_zero(status_id_zero):
     '''Убираю нолики с статус id'''
@@ -41,8 +37,12 @@ def def_values(request):
     '''Значения используемые в большинстве вьюшек'''
     best_cookies = user_best_cookies(request)
     all_user = CustomUser.objects.annotate(num_status=Count('vstatus')).order_by('-num_status')
+    try:
+        random_header = RandomText.objects.order_by('?')[1].random_text_body
+    except:
+        random_header = ''
     return {
-            'random_header': RandomText.objects.order_by('?')[1].random_text_body,
+            'random_header': random_header,
             'all_status_count':VStatus.objects.all().count(),
             'all_user_count':all_user.count(),
             'all_user':all_user[:5],
@@ -50,8 +50,21 @@ def def_values(request):
             'yes_votes_list':best_cookies['yes_votes_list'],
             'no_votes_list':best_cookies['no_votes_list'],
             'yes_votes_list_count':best_cookies['yes_votes_list_count'],
-            'category': Category.objects.annotate(num_status=Count('vstatus')).filter(num_status__gt = 0).order_by('-num_status')
+            'category': Category.objects.all()#Category.objects.annotate(num_status=Count('vstatus')).filter(num_status__gt = 0).order_by('-num_status')
         }
+
+def category_description(category_id=False):
+    """ Выборка для Category descripton  """
+    category_for_desc = ''
+    if category_id:
+        category_for_desc = Category.objects.get(id = category_id)
+    else:
+        for i in Category.objects.all():
+            category_for_desc = category_for_desc + i.category_name + ' '
+    try:
+        return category_for_desc.encode("UTF-8")
+    except:
+        return ''
 
 def index(request, error_message=None, message_type=None):
     '''Стартовая страница'''
@@ -65,15 +78,12 @@ def index(request, error_message=None, message_type=None):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    category_for_desc = ''
-    for i in Category.objects.all():
-        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':status,
             'current':'sort',
             'title':'по Рейтингу',
             'message':error_message,
             'message_type':message_type,
-            'description': 'Cтатусы для вконтакте ' + category_for_desc.encode("UTF-8")
+            'description': 'Cтатусы для вконтакте ' + category_description()
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -92,13 +102,10 @@ def by_this_date(request, this_date):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    category_for_desc = ''
-    for i in Category.objects.all():
-        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':status,
             'current':'sort',
             'title':pytils.dt.ru_strftime(u"за %d %B %Y", datetime.datetime.fromtimestamp(time.mktime(time.strptime(this_date, "%Y-%m-%d"))), inflected=True),
-            'description': 'Cтатусы для вконтакте отсортированные по дате ' + category_for_desc.encode("UTF-8"),
+            'description': 'Cтатусы для вконтакте отсортированные по дате ' + category_description(),
     }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -115,13 +122,10 @@ def this_status(request, id):
 
 def random_ten(request):
     '''Случайная десятка'''
-    category_for_desc = ''
-    for i in Category.objects.all():
-        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':VStatus.objects.order_by('?')[:10],
             'current':'sort',
             'title':'Случайная десятка',
-            'description': 'Случайная десятка статусов для вконтакте ' + category_for_desc.encode("UTF-8"),
+            'description': 'Случайная десятка статусов для вконтакте ' + category_description(),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -139,13 +143,10 @@ def by_this_rating(request, rating):
         status = paginator.page(page)
     except (EmptyPage, InvalidPage):
         status = paginator.page(paginator.num_pages)
-    category_for_desc = ''
-    for i in Category.objects.all():
-        category_for_desc = category_for_desc + i.category_name + ' '
     dict = {'status':status,
             'current':'sort',
             'title':'по рейтингу равному '+rating.replace("-", ".").encode("UTF-8"),
-            'description': 'Статусы с рейтингом ' + rating.replace("-", ".").encode("UTF-8") + ' ' + category_for_desc.encode("UTF-8"),
+            'description': 'Статусы с рейтингом ' + rating.replace("-", ".").encode("UTF-8") + ' ' + category_description(),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)
@@ -279,7 +280,9 @@ def by_category(request, category):
     dict = {'status':status,
             'title':category.category_name.encode("UTF-8"),
             'current':'category',
-            'description': category.category_description.encode("UTF-8")
+            'description': 'Cтатусы для вконтакте, '
+                            + category.category_name.encode("UTF-8") + ' '
+                            + category_description(category.id),
         }
     dict2 = def_values(request).copy()
     dict2.update(dict)

@@ -7,10 +7,18 @@ from django.db import models
 from django.contrib.auth.models import User
 import pytils
 
+def add_zero(value):
+    len_val = len(str(value))
+    if len_val < 8:
+        return '0'*(8-len_val)+str(value)
+    return value
+
+
 STATUS_STATUS = (
-    ('d', 'Не утверждена'),
-    ('p', 'Утверждена'),
-    ('r', 'Удалить'),
+    ('d', 'Не подтвержден'),
+    ('p', 'Подтвержден'),
+    ('r', 'Удален'),
+    ('t', 'Мусор'),
 )
 
 class RandomText(models.Model):
@@ -66,6 +74,9 @@ class VStatus(models.Model):
     def get_edit_url(self):
         return "/vs-admin/this/%d/" % self.id
 
+    def get_absolute_url(self):
+        id_zero = add_zero(self.id)
+        return "/status/%s/" % id_zero
 
     class Meta:
         verbose_name = "статус"

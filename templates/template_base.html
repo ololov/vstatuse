@@ -13,21 +13,20 @@
 <body class="home blog">
     <div id="container">
         <div id="top">
-<div id="menu" class="menu-navigation-container">
-    <ul id="access">
-        <li>Cтатусов: <b>{{ all_status_count }}</b></li>
-        <li>Пользователей: <b>{{ all_user_count }}</b></li>
-    </ul>
-</div>
-<div id="logged-in">{% if user.is_superuser %}
-<a href="/vs-admin/all/start">Постатусный редактор</a> <a href="">Пересчитать рейтинги</a>
- {% else %}<a href="#">Новости</a> <a href="#">Небольшая справка</a>{% endif %}
-    {% if user.is_authenticated %}
-    <a href="#" title="Просмотр профиля">{{user.first_name}} {{user.last_name}}</a> <a href="/logout">Выйти</a>{% else %}
-<a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&providers_set=vkontakte" class="loginza">Войти через вконтакт</a>
-    {% endif %}
-</div>
-    </div>
+            <div id="menu" class="menu-navigation-container">
+                <ul id="access">
+                    <li>Cтатусов: <b>{{ 'p'|status_count }}</b></li>
+                    <li>Пользователей: <b>{{ all_user_count }}</b></li>
+                </ul>
+            </div>
+            <div id="logged-in">
+                <a href="/news">Новости</a>
+                <a href="/small-help">Небольшая справка</a>{% if user.is_authenticated %}
+                <a href="#" title="Просмотр профиля">{{user.first_name}} {{user.last_name}}</a>
+                <a href="/logout">Выйти</a>{% else %}
+                <a href="https://loginza.ru/api/widget?token_url=http://192.168.1.13:8000/registration-confirm/&providers_set=vkontakte" class="loginza">Войти через вконтакт</a>{% endif %}
+            </div>
+        </div>
         <div id="branding" role="banner">
             <h1 id="site-title"><a href="/">Vstatuse</a> <span>&rarr;</span> {% block header %}{{ title }}{% endblock header %}</h1>
             <div class="tagline">{{ random_header }}</div>
@@ -50,7 +49,7 @@
                                 <a href="#">Категории</a>
                                 <ul class="children">
                                 {% for c in category %}
-                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.num_status }}</span></a> </li>{% endfor %}
+                                    <li><a href="/order-by/category/{{ c.category_slug }}" title="Сортировать по категории {{ c.category_name }}">{{ c.category_name }} <span>{{ c.category_status_count }}</span></a> </li>{% endfor %}
                                </ul>
                             </li>
                             <li {% if current = 'best' %}class="current-tab"{% endif %}>
@@ -104,9 +103,16 @@
 <li id="cat-tax-3" class="widget-container widget_cat-tax">
     <h3 class="widget-title">Статистика</h3>
     <ul>
-        <li><a href="#" title="Просмотреть статусы любой категории">Всего статусов</a>  <a href="#" class="rss"><b>({{ all_user_count_p|all_status }})</b></a></li>
-        <li><a href="#" title="Просмотреть не подтвержденные статусы всех админов">Не подтвержденных</a> <a href="#" class="rss"><b>({{all_user_count_p|all_status_d}})</b></a></li>
-        <li><a href="#" title="Просмотреть свои не подтвержденные статусы">Своих не подтвержденных</a> <a href="#" class="rss"><b>({{user.username|all_status_d}})</b></a></li>
+        <li><a href="#" title="Подтвержденных статусов"></a>Подтвержденных статусов<a href="#" class="rss"><b>({{ 'p'|status_count }})</b></a></li>
+        <li><a href="/vs-admin/all/start" title="Постатусный редактор">Не подтвержденных</a>  <a href="#" class="rss"><b>({{ 'd'|status_count }})</b></a></li>
+        <li><a href="/vs-admin/category/add" title="Добавть категорию">Категорий</a>  <a href="#" class="rss"><b>({{ 'd'|category_count }})</b></a></li>
+        <li><a href="/vs-admin/news/add" title="Добавть новость">Новостей</a>  <a href="#" class="rss"><b>({{ 'd'|category_count }})</b></a></li>
+    </ul>
+<li id="cat-tax-4" class="widget-container widget_cat-tax">
+    <h3 class="widget-title">Профилактика</h3>
+    <ul>
+        <li><a href="/vs-admin/category/recalculate" title="Пересчитать количество статусов в категории">Пересчитать категории</a></li>
+        <li><a href="/vs-admin/users/recalculate" title="Пересчитать количество статусов и рейтинг пользователя">Пересчитать пользователей</a></li>
     </ul>
 </li>{% endif %}
 
@@ -134,7 +140,7 @@
 </div>
 <div id="footer">
     <ul>
-        <li>Сделано при помощи <a href="http://sdesign.com.ua">sdesign.com.ua</a> и <a href="http://kwblog.net">Yegor Kowalew</a>
+        <li>Сделано при помощи <a href="http://sdesign.com.ua">sdesign.com.ua</a> и <a href="http://kwblog.com.ua">Yegor Kowalew</a>
         <li class="alignright">Верисия: 1.0 Beta.</li>
     </ul>
     </div>

@@ -50,7 +50,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    #'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware'
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware'
 )
 
 ROOT_URLCONF = 'vstatuse.urls'
@@ -71,6 +71,8 @@ INSTALLED_APPS = (
     'django.contrib.flatpages',
     'vstatuse.status',
     'vstatuse.customuser',
+    'vstatuse.news',
+    'django.contrib.sitemaps',
 )
 
 AUTHENTICATION_BACKENDS = (

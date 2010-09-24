@@ -11,12 +11,15 @@
     <p class="ticket-author">зарегистрирован  <a href="#">{{ st.date_joined|date:"D d M Y" }}</a></p>
     {% if st.photo %}<a href="{{ st.identity }}"><img src="{{ st.photo }}" title="Перейти на страницу пользователя"/></a>{% endif %}
     <h2 class="ticket-title">{{ st.first_name  }} {{ st.last_name  }}</h2>
-    <ul class="ticket-meta">
-        <li><small>Добавил статусов</small><a href="/autor/{{ st.id }}" title="Просмотреть все статусы автора">{{ st.status_count }}</a></li>
-        <li><small>Положительных оценок</small><a href="/order-by/autor/{{ st.id }}/yes-votes" title="Просмотреть по положительным оценкам" rel="category tag">{{ st.max_votes_yes }}</a></li>
-        <li><small>Отрицательных оценок</small><a href="/order-by/autor/{{ st.id }}/no-votes" title="Просмотреть по отрицательным оценкам" rel="category tag">{{ st.max_votes_no }}</a></li>
-        {% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/autor/rating/{{ st.user_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.user_rating }}</a></li>{% endif %}
-</ul>
+    {% if st.status_count %}
+<ul class="ticket-meta">
+<li><small>Добавил статусов</small><a href="/autor/{{ st.id }}" title="Просмотреть все статусы автора">{{ st.status_count }}</a></li>
+{% if st.max_votes_yes %}
+<li><small>Положительных оценок</small><a href="/order-by/autor/{{ st.id }}/yes-votes" title="Просмотреть по положительным оценкам" rel="category tag">{{ st.max_votes_yes }}</a></li>{% endif %}
+{% if st.max_votes_no %}
+<li><small>Отрицательных оценок</small><a href="/order-by/autor/{{ st.id }}/no-votes" title="Просмотреть по отрицательным оценкам" rel="category tag">{{ st.max_votes_no }}</a></li>{% endif %}
+{% if  st.status_rating != 0 %}<li><small>Рейтинг</small><a href="/autor/rating/{{ st.user_rating|point_to_dash }}" title="Просмотреть по рейтингу">{{ st.user_rating }}</a></li>{% endif %}
+</ul>{% endif %}
 {% endfor %}
 
 {% endblock content %}

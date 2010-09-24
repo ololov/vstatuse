@@ -13,6 +13,13 @@ admin.autodiscover()
 #handler404 = 'status.views.custom_404_view'
 #handler500 = 'status.views.custom_error_view'
 
+from status.sitemap import VSitemap
+
+sitemaps = {
+    'site': VSitemap,
+}
+
+
 urlpatterns = patterns('',
     # Example:
     # (r'^vstatuse/', include('vstatuse.foo.urls')),
@@ -20,6 +27,7 @@ urlpatterns = patterns('',
     #(r'^admin-side/$', 'status.views.admin_side'),
     (r'', include('customuser.urls')),
     (r'', include('vs_admin.urls')),
+    (r'', include('news.urls')),
 
     (r'^add-status/$', 'status.views.add_status'), # надо вынести в другой файл.
     (r'^add-base/$', 'vs_admin.add_db.add_base'),
@@ -31,6 +39,7 @@ urlpatterns = patterns('',
 
 # Сортировка
     (r'^random-ten/$', 'status.views.random_ten'),
+
     (r'^rating/(?P<rating>[\-\d\w]+)$', 'status.views.by_this_rating'),
     (r'^date/(?P<this_date>[\-\d\w]+)$', 'status.views.by_this_date'),
     (r'^order-by/best/(?P<ordering>[\-\d\w]+)/(?P<num>[\-\d\w]+)/$', 'status.views.order_best'),
@@ -46,6 +55,11 @@ urlpatterns = patterns('',
 
     (r'^$', 'status.views.index'),
     (r'^admin/', include(admin.site.urls)),
+
+    (r'^sitemap\.xml$', 'django.contrib.sitemaps.views.sitemap', {'sitemaps': sitemaps}),
+
+    (r'^small-help/$', 'status.flat.small_help'),
+    #(r'^test/$', 'twitter.views.tw'),
 )
 
 if settings.DEBUG == True:
